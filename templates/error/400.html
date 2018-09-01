@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container-fluid banner">
+        <div class="row justify-content-center">
+            <div class="jumbotron-fluid py-5">
+            </div>
+        </div>
+    </div>
+
+    <div class="container w-50 center mt-3">
+        <h1>400 - Bad Request</h1>
+        <p>The following issue was encountered when processing your request:</p>
+        <p><b>{{ error }}</b></p>
+        <a href="/"><p><br><br>Home Page</p></a>
+    </div>
+{% endblock %}

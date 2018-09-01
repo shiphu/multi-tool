@@ -1,0 +1,18 @@
+{{ key['vpn_header'] }}
+
+set interfaces RETH0 unit {{ key['vpn_vlan'] }} description {{ key['vpn_path'] }}
+set interfaces RETH0 unit {{ key['vpn_vlan'] }} vlan-id {{ key['vpn_vlan'] }}
+set interfaces RETH0 unit {{ key['vpn_vlan'] }} family inet address {{ key['vpn_vpn_ip'] }}/{{ key['vpn_cidr'] }}
+set security zones security-zone trust interfaces RETH0.{{ key['vpn_vlan'] }}
+
+set security ike policy IKE-POLICY-{{ key['cpe_router'] }} mode main
+set security ike policy IKE-POLICY-{{ key['cpe_router'] }} proposals HOT-KEY-PROPOSAL
+set security ike policy IKE-POLICY-{{ key['cpe_router'] }} pre-shared-key ascii-text {{ key['msu_id'] }}
+
+set security ike gateway {{ key['cpe_router'] }}-RETH0-{{ key['vpn_vlan'] }}-PRI ike-policy IKE-POLICY-{{ key['cpe_router'] }}
+set security ike gateway {{ key['cpe_router'] }}-RETH0-{{ key['vpn_vlan'] }}-PRI address {{ key['vpn_cpe_ip'] }}
+set security ike gateway {{ key['cpe_router'] }}-RETH0-{{ key['vpn_vlan'] }}-PRI external-interface RETH0.{{ key['vpn_vlan'] }}
+
+{% for item in key['vpn_service_configs'] -%}
+{{ item }}
+{% endfor %}

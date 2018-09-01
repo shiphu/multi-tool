@@ -1,0 +1,54 @@
+set interfaces {{ key['cpe_port'] }} description {{ key['service_type'] }}-{{ key['clci'] }}
+set interfaces {{ key['cpe_port'] }} speed {{ key['cpe_port_speed']}}m
+set interfaces {{ key['cpe_port'] }} link-mode full-duplex
+set interfaces {{ key['cpe_port'] }} gigether-options no-auto-negotiation
+set interfaces {{ key['cpe_port'] }} gigether-options redundant-parent reth{{ key['tunnel_id'] }}
+
+set class-of-service interfaces reth{{ key['tunnel_id'] }} unit 0 classifiers dscp DSCP-DEFAULT
+set interfaces reth{{ key['tunnel_id'] }} redundant-ether-options redundancy-group 1
+set interfaces reth{{ key['tunnel_id'] }} unit 0 description {{ key['service_type'] }}-RETH-{{ key['clci'] }}
+set interfaces reth{{ key['tunnel_id'] }} unit 0 family inet policer input POLICE-{{ key['bw_minus_one'] }}MB
+set interfaces reth{{ key['tunnel_id'] }} unit 0 family inet address {{ key['cpe_ip'] }}/{{ key['cpe_cidr'] }}
+
+set interfaces st0 unit {{ key['tunnel_id'] }} description {{ key['service_type'] }}-{{ key['clci'] }}
+set interfaces st0 unit {{ key['tunnel_id'] }} family inet
+
+set policy-options policy-statement {{ key['service_type'] }}-{{ key['tunnel_id'] }}-connected-bgp term 1 from tag 5
+set policy-options policy-statement {{ key['service_type'] }}-{{ key['tunnel_id'] }}-connected-bgp term 1 then reject
+set policy-options policy-statement {{ key['service_type'] }}-{{ key['tunnel_id'] }}-connected-bgp term 2 from instance {{ key['service_type'] }}-{{ key['tunnel_id'] }}-vr
+set policy-options policy-statement {{ key['service_type'] }}-{{ key['tunnel_id'] }}-connected-bgp term 2 from protocol direct
+set policy-options policy-statement {{ key['service_type'] }}-{{ key['tunnel_id'] }}-connected-bgp term 2 from protocol static
+set policy-options policy-statement {{ key['service_type'] }}-{{ key['tunnel_id'] }}-connected-bgp term 2 then accept
+
+set security ipsec vpn {{ key['ipsec_abbrev'] }}-{{ key['tunnel_id'] }}-{{ key['vpn_conc'] }}-tun-{{ key['vlan'] }} bind-interface st0.{{ key['tunnel_id'] }}
+set security ipsec vpn {{ key['ipsec_abbrev'] }}-{{ key['tunnel_id'] }}-{{ key['vpn_conc'] }}-tun-{{ key['vlan'] }} vpn-monitor optimized
+set security ipsec vpn {{ key['ipsec_abbrev'] }}-{{ key['tunnel_id'] }}-{{ key['vpn_conc'] }}-tun-{{ key['vlan'] }} ike gateway {{ key['vpn_conc'] }}-RETH0-{{ key['vpn_vlan'] }}-GW-PRI
+set security ipsec vpn {{ key['ipsec_abbrev'] }}-{{ key['tunnel_id'] }}-{{ key['vpn_conc'] }}-tun-{{ key['vlan'] }} ike no-anti-replay
+set security ipsec vpn {{ key['ipsec_abbrev'] }}-{{ key['tunnel_id'] }}-{{ key['vpn_conc'] }}-tun-{{ key['vlan'] }} ike proxy-identity local 0.0.0.0/0
+set security ipsec vpn {{ key['ipsec_abbrev'] }}-{{ key['tunnel_id'] }}-{{ key['vpn_conc'] }}-tun-{{ key['vlan'] }} ike proxy-identity remote {{ key['pe_network'] }}/{{ key['pe_cidr'] }}
+set security ipsec vpn {{ key['ipsec_abbrev'] }}-{{ key['tunnel_id'] }}-{{ key['vpn_conc'] }}-tun-{{ key['vlan'] }} ike proxy-identity service any
+set security ipsec vpn {{ key['ipsec_abbrev'] }}-{{ key['tunnel_id'] }}-{{ key['vpn_conc'] }}-tun-{{ key['vlan'] }} ike ipsec-policy POLICY-TRAFFIC-{{ key['srx_exchange'] }}
+set security ipsec vpn {{ key['ipsec_abbrev'] }}-{{ key['tunnel_id'] }}-{{ key['vpn_conc'] }}-tun-{{ key['vlan'] }} establish-tunnels immediately
+
+set security zones security-zone {{ key['service_type'] }}-{{ key['tunnel_id'] }}-zone host-inbound-traffic system-services all
+set security zones security-zone {{ key['service_type'] }}-{{ key['tunnel_id'] }}-zone host-inbound-traffic protocols all
+set security zones security-zone {{ key['service_type'] }}-{{ key['tunnel_id'] }}-zone interfaces st0.{{ key['tunnel_id'] }}
+set security zones security-zone {{ key['service_type'] }}-{{ key['tunnel_id'] }}-zone interfaces reth{{ key['tunnel_id'] }}.0
+
+set routing-instances {{ key['service_type'] }}-{{ key['tunnel_id'] }}-vr instance-type virtual-router
+set routing-instances {{ key['service_type'] }}-{{ key['tunnel_id'] }}-vr interface reth{{ key['tunnel_id'] }}.0
+set routing-instances {{ key['service_type'] }}-{{ key['tunnel_id'] }}-vr interface st0.{{ key['tunnel_id'] }}
+set routing-instances {{ key['service_type'] }}-{{ key['tunnel_id'] }}-vr routing-options static route {{ key['pe_network'] }}/{{ key['pe_cidr'] }} next-hop st0.{{ key['tunnel_id'] }}
+set routing-instances {{ key['service_type'] }}-{{ key['tunnel_id'] }}-vr routing-options static route {{ key['pe_network'] }}/{{ key['pe_cidr'] }} tag 5
+
+set routing-instances {{ key['service_type'] }}-{{ key['tunnel_id'] }}-vr protocols bgp local-as {{ key['cpe_asn'] }}
+set routing-instances {{ key['service_type'] }}-{{ key['tunnel_id'] }}-vr protocols bgp log-updown
+set routing-instances {{ key['service_type'] }}-{{ key['tunnel_id'] }}-vr protocols bgp group {{ key['service_type'] }}-{{ key['tunnel_id'] }}-bgp bfd-liveness-detection minimum-interval 5000
+set routing-instances {{ key['service_type'] }}-{{ key['tunnel_id'] }}-vr protocols bgp group {{ key['service_type'] }}-{{ key['tunnel_id'] }}-bgp neighbor {{ key['vpn_ip'] }} multihop ttl 2
+set routing-instances {{ key['service_type'] }}-{{ key['tunnel_id'] }}-vr protocols bgp group {{ key['service_type'] }}-{{ key['tunnel_id'] }}-bgp neighbor {{ key['vpn_ip'] }} local-address {{ key['cpe_ip'] }}
+set routing-instances {{ key['service_type'] }}-{{ key['tunnel_id'] }}-vr protocols bgp group {{ key['service_type'] }}-{{ key['tunnel_id'] }}-bgp neighbor {{ key['vpn_ip'] }} hold-time 30
+set routing-instances {{ key['service_type'] }}-{{ key['tunnel_id'] }}-vr protocols bgp group {{ key['service_type'] }}-{{ key['tunnel_id'] }}-bgp neighbor {{ key['vpn_ip'] }} import BGP-OUT-Pri
+set routing-instances {{ key['service_type'] }}-{{ key['tunnel_id'] }}-vr protocols bgp group {{ key['service_type'] }}-{{ key['tunnel_id'] }}-bgp neighbor {{ key['vpn_ip'] }} authentication-key {{ key['msu_id'] }}
+set routing-instances {{ key['service_type'] }}-{{ key['tunnel_id'] }}-vr protocols bgp group {{ key['service_type'] }}-{{ key['tunnel_id'] }}-bgp neighbor {{ key['vpn_ip'] }} export BGP-IN-Pri
+set routing-instances {{ key['service_type'] }}-{{ key['tunnel_id'] }}-vr protocols bgp group {{ key['service_type'] }}-{{ key['tunnel_id'] }}-bgp neighbor {{ key['vpn_ip'] }} export {{ key['service_type'] }}-{{ key['tunnel_id'] }}-connected-bgp
+set routing-instances {{ key['service_type'] }}-{{ key['tunnel_id'] }}-vr protocols bgp group {{ key['service_type'] }}-{{ key['tunnel_id'] }}-bgp neighbor {{ key['vpn_ip'] }} peer-as {{ key['vpn_asn'] }}

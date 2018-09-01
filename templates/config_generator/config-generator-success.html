@@ -1,0 +1,172 @@
+{% extends 'config_generator/config-generator-splash.html' %}
+{% block body %}
+    <input type="text" class="hidden" value="{{ site }}" id="siteTypeHidden">
+    <div class="container w-25 mt-3" id="configDownload">
+        <div class="card">
+            <div class="card-body list-group-item-success text-center">
+                <p class="card-text">Configuration files successfully generated!</p>
+            </div>
+            <ul class="list-group">
+                <li class="list-group-item list-group-item-info text-center">
+                    <span class="fas fa-download mb-3" id="download"></span>
+                    <a href="{{ url_for('download_file', file_type='config_zip') }} ">
+                        <h6>Download {{ text_configs['config_zip'] }}</h6>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="container-fluid w-75 my-4" id="configTextArea">
+        <div class="card pb-3 center">
+            <h1 class="text-center my-2 pb-4">Primary Configs</h1>
+            <!-- CPE OUTPUT -->
+            <div role="tab">
+                <div class="card-header text-center">
+                    <a data-toggle="collapse" href="#cpeCollapse" id="cpeToggle">
+                        CPE Output<i class="fas fa-minus icon"></i>
+                    </a>
+                </div>
+            </div>
+            <div id="cpeCollapse" class="collapse show" role="tabpanel">
+                <textarea class="form-control" rows="11" cols="50">
+                {{- text_configs['1 - CPE'] }}
+                </textarea>
+            </div>
+
+            <!-- SWITCH OUTPUT -->
+            <div role="tab">
+                <div class="card-header mt-3 text-center">
+                    <a data-toggle="collapse" href="#switchCollapse" id="switchToggle" class="collapsed">
+                        L2 Switch Output<i class="fas fa-plus icon"></i>
+                    </a>
+                </div>
+            </div>
+            <div id="switchCollapse" class="collapse hide" role="tabpanel">
+                <textarea class="form-control" rows="11" cols="50">
+                {{- text_configs['2 - L2 Switch'] }}
+                </textarea>
+            </div>
+
+            <!-- VPN OUTPUT -->
+            <div role="tab">
+                <div class="card-header mt-3 text-center">
+                    <a data-toggle="collapse" href="#vpnCollapse" id="vpnToggle" class="collapsed">
+                        VPN Output<i class="fas fa-plus icon"></i>
+                    </a>
+                </div>
+            </div>
+            <div id="vpnCollapse" class="collapse hide" role="tabpanel">
+                <textarea class="form-control" rows="11" cols="50">
+                {{- text_configs['3 - VPN'] }}
+                </textarea>
+            </div>
+
+            <!-- PE OUTPUT -->
+            <div role="tab">
+                <div class="card-header mt-3 text-center">
+                    <a data-toggle="collapse" href="#peCollapse" id="peToggle" class="collapsed">
+                        PE Output<i class="fas fa-plus icon"></i>
+                    </a>
+                </div>
+            </div>
+            <div id="peCollapse" class="collapse hide" role="tabpanel">
+                <textarea class="form-control" rows="11" cols="50">
+                {{- text_configs['4 - PE'] }}
+                </textarea>
+            </div>
+
+            <!-- IP SLA OUTPUT -->
+            <div role="tab">
+                <div class="card-header mt-3 text-center">
+                    <a data-toggle="collapse" href="#ipslaCollapse" id="ipslaToggle" class="collapsed">
+                        IP SLA Output<i class="fas fa-plus icon"></i>
+                    </a>
+                </div>
+            </div>
+            <div id="ipslaCollapse" class="collapse hide" role="tabpanel">
+                <textarea class="form-control" rows="11" cols="50">
+                {{- text_configs['5 - IPSLA'] }}
+                </textarea>
+            </div>
+        </div>
+
+        <!-- BACKUP SECTION -->
+    </div>
+    <div class="container-fluid w-75 mt-2" id="configTextAreaBackup">
+        <div class="card pb-3">
+            <h1 class="text-center my-2 pb-4">Backup Configs</h1>
+            <!-- CPE OUTPUT -->
+            <div role="tab">
+                <div class="card-header text-center">
+                    <a data-toggle="collapse" href="#cpeCollapseBackup" id="cpeToggleBackup">
+                        CPE Output<i class="fas fa-minus icon"></i>
+                    </a>
+                </div>
+            </div>
+            <div id="cpeCollapseBackup" class="collapse show" role="tabpanel">
+                    <textarea class="form-control" rows="11" cols="50">
+                    {{- text_configs['1 - CPE Backup'] }}
+                    </textarea>
+            </div>
+
+            <!-- SWITCH OUTPUT -->
+            <div role="tab">
+                <div class="card-header mt-3 text-center">
+                    <a data-toggle="collapse" href="#switchCollapseBackup" id="switchToggleBackup" class="collapsed">
+                        L2 Switch Output<i class="fas fa-plus icon"></i>
+                    </a>
+                </div>
+            </div>
+            <div id="switchCollapseBackup" class="collapse hide" role="tabpanel">
+                    <textarea class="form-control" rows="11" cols="50">
+                    {{- text_configs['2 - L2 Switch Backup'] }}
+                    </textarea>
+            </div>
+
+            <!-- VPN OUTPUT -->
+            <div role="tab">
+                <div class="card-header mt-3 text-center">
+                    <a data-toggle="collapse" href="#vpnCollapseBackup" id="vpnToggleBackup" class="collapsed">
+                        VPN Output<i class="fas fa-plus icon"></i>
+                    </a>
+                </div>
+            </div>
+            <div id="vpnCollapseBackup" class="collapse hide" role="tabpanel">
+                    <textarea class="form-control" rows="11" cols="50">
+                    {{- text_configs['3 - VPN Backup'] }}
+                    </textarea>
+            </div>
+
+            <!-- PE OUTPUT -->
+            <div role="tab">
+                <div class="card-header mt-3 text-center">
+                    <a data-toggle="collapse" href="#peCollapseBackup" id="peToggleBackup" class="collapsed">
+                        PE Output<i class="fas fa-plus icon"></i>
+                    </a>
+                </div>
+            </div>
+            <div id="peCollapseBackup" class="collapse hide" role="tabpanel">
+                    <textarea class="form-control" rows="11" cols="50">
+                    {{- text_configs['4 - PE Backup'] }}
+                    </textarea>
+            </div>
+
+            <!-- IP SLA OUTPUT -->
+            <div role="tab">
+                <div class="card-header mt-3 text-center">
+                    <a data-toggle="collapse" href="#ipslaCollapseBackup" id="ipslaToggleBackup" class="collapsed">
+                        IP SLA Output<i class="fas fa-plus icon"></i>
+                    </a>
+                </div>
+            </div>
+            <div id="ipslaCollapseBackup" class="collapse hide" role="tabpanel">
+                    <textarea class="form-control" rows="11" cols="50">
+                    {{- text_configs['5 - IPSLA Backup'] }}
+                    </textarea>
+            </div>
+        </div>
+        <div class="text-center">
+            <small class=" form-text text-muted">Designed by Brendan Phu. Version 1.0.1</small>
+        </div>
+    </div>
+{% endblock %}

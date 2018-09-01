@@ -1,0 +1,10 @@
+{{ key['p_ipsla_header'] }}
+{% for item in key['primary_ipsla_configs'] %}
+{{ item }}
+{% endfor %}
+
+{{ key['b_ipsla_header'] }}
+{% for item in key['backup_ipsla_configs'] %}
+{{ item }}
+{% endfor %}
+

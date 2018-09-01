@@ -1,0 +1,16 @@
+pe_router,pop_code,pop_clli,srx3600_name,asr_name,pe_nms_port,pe_logical_port,pe_45w_port,pe_46w_port,asr_45w_port,asr_46w_port,asr_nms_port
+EBCKONCBPED10,RCH - Richview,EBCKONCBM00,EBCKONCB45W,EBCKONCBPED01,GigabitEthernet0/0/1,BDI,TenGigabitEthernet0/3/0,TenGigabitEthernet0/4/1,TenGigabitEthernet0/5/0/0,TenGigabitEthernet0/2/0/0,GigabitEthernet0/7/0/6
+EBCKONCBPED11,RCH - Richview,EBCKONCBM00,EBCKONCB45W,EBCKONCBPED01,GigabitEthernet0/3/1,BDI,GigabitEthernet0/3/2,GigabitEthernet0/4/2,TenGigabitEthernet0/5/0/0,TenGigabitEthernet0/2/0/0,GigabitEthernet0/7/0/6
+HMTNONKJPED10,BHA - Hamilton,HMTNONKJD00,HMTNONKJ45W,HMTNONKJPED01,GigabitEthernet0/3/1,BDI,GigabitEthernet0/3/2,GigabitEthernet0/4/2,GigabitEthernet0/5,GigabitEthernet0/6,GigabitEthernet0/0/0/1
+KGTNONGWPED10,KTN - Kingston,KGTNONGWD00,KGTNONGW45W,KGTNONGWPED01,GigabitEthernet0/3/1,BDI,GigabitEthernet0/3/2,GigabitEthernet0/4/2,GigabitEthernet0/0/0/15,GigabitEthernet0/7/0/15,GigabitEthernet0/7/0/4
+KTNRONOMPED10,KIT - Kitchener,KTNRONOMD00,KTNRONOM45W,KTNRONOMPED01,GigabitEthernet0/3/1,BDI,GigabitEthernet0/3/2,GigabitEthernet0/4/2,GigabitEthernet0/0/0/10,GigabitEthernet0/7/0/1,GigabitEthernet0/7/0/19
+LONDONATPED10,LON - London,LONDONATD02,LONDONAT45W,LONDONATPED01,GigabitEthernet0/3/1,BDI,GigabitEthernet0/3/2,GigabitEthernet0/4/2,GigabitEthernet0/5,GigabitEthernet0/6,
+OTWBONPZPED10 (10GIG),OTA - Ottawa,OTWBONPZD00,OTWBONPZ45W,OTWBONPZPED01,GigabitEthernet0/3/1,BDI,TenGigabitEthernet0/0/1,TenGigabitEthernet0/1/0,TenGigabitEthernet0/0/0/1,TenGigabitEthernet0/6/0/1,GigabitEthernet0/0/0/16
+OTWBONPZPED10 (GIG),OTA - Ottawa,OTWBONPZD00,OTWBONPZ45W,OTWBONPZPED01,GigabitEthernet0/3/1,BDI,GigabitEthernet0/3/5,GigabitEthernet0/4/5,TenGigabitEthernet0/0/0/1,TenGigabitEthernet0/6/0/1,GigabitEthernet0/0/0/16
+SDBRONEMPED10,SBY - Sudbury,SDBRONEMD00,SDBRONEM45W,,GigabitEthernet0/3/1,BDI,GigabitEthernet0/3/2,GigabitEthernet0/4/2,GigabitEthernet0/7,GigabitEthernet0/8,
+TDBAONIZPED10,TBY - Thunder Bay,TDBAONIZD00,TDBAONIZ45W,,GigabitEthernet0/3/1,BDI,GigabitEthernet0/3/2,GigabitEthernet0/4/2,GigabitEthernet0/7,GigabitEthernet0/8,
+TOROONXNPED10,TFS - Toronto,TOROONXND27,TOROONXN45W,TOROONXNPED01,GigabitEthernet0/3/1,BDI,GigabitEthernet0/3/3,GigabitEthernet0/4/3,TenGigabitEthernet0/2/0/0,TenGigabitEthernet0/4/0/0,GigabitEthernet0/6/0/2
+TOROONXNPED11,TFS - Toronto,TOROONXND27,TOROONXN45W,TOROONXNPED01,GigabitEthernet0/0/7,BDI,GigabitEthernet0/3/1,GigabitEthernet0/7/1,TenGigabitEthernet0/2/0/0,TenGigabitEthernet0/4/0/0,GigabitEthernet0/6/0/2
+UTOPONADPED10 (10GIG),ESA - Utopia,UTOPONADD00,UTOPONAD45W,UTOPONADPED01,GigabitEthernet0/3/1,BDI,TenGigabitEthernet0/0/1,TenGigabitEthernet0/1/0,TenGigabitEthernet0/7/0/1,TenGigabitEthernet0/0/0/1,GigabitEthernet0/7/0/8
+UTOPONADPED10 (GIG),ESA - Utopia,UTOPONADD00,UTOPONAD45W,UTOPONADPED01,GigabitEthernet0/3/1,BDI,GigabitEthernet0/3/2,GigabitEthernet0/4/2,TenGigabitEthernet0/7/0/1,TenGigabitEthernet0/0/0/1,GigabitEthernet0/7/0/8
+WNDSONWGPED10,WSR - Windsor,WNDSONWGD00,WNDSONWG45W,WNDSONWGPED01,GigabitEthernet0/3/1,BDI,GigabitEthernet0/3/2,GigabitEthernet0/4/2,GigabitEthernet0/0/0/15,GigabitEthernet0/7/0/15,GigabitEthernet0/0/0/5

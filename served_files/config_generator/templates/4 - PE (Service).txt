@@ -1,0 +1,75 @@
+bridge-domain {{ key['vlan'] }}
+ member TenGigabitEthernet0/0/1 service-instance 164
+ member TenGigabitEthernet0/1/0 service-instance 164
+!
+
+interface {{ key['pe_45w_port'] }}
+ service instance {{ key['vlan'] }} ethernet
+  encapsulation dot1q {{ key['vlan'] }}
+  rewrite ingress tag pop 1 symmetric
+  service-policy input POLICE-{{ key['bw_minus_one'] }}MB-IN
+  service-policy output POLICE-{{ key['bw_minus_one'] }}MB-OUT
+ exit
+!
+
+interface {{ key['pe_46w_port'] }}
+ service instance {{ key['vlan'] }} ethernet
+  encapsulation dot1q {{ key['vlan'] }}
+  rewrite ingress tag pop 1 symmetric
+  service-policy input POLICE-{{ key['bw_minus_one'] }}MB-IN
+  service-policy output POLICE-{{ key['bw_minus_one'] }}MB-OUT
+ exit
+!
+
+interface {{ key['pe_logical_port'] }}{{ key['vlan'] }}
+ description {{ key['cpe_router'] }}-{{ key['clci'] }}-{{ key['service_type'] }}
+ ip vrf forwarding {{ key['service_type'] }}
+ ip address {{ key['pe_ip'] }} 255.255.255.252
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ ip flow ingress
+ no shutdown
+exit
+
+router bgp 21992
+ address-family ipv4 vrf {{ key['service_type'] }}
+  neighbor {{ key['vpn_ip'] }} remote-as {{ key['vpn_asn'] }}
+  neighbor {{ key['vpn_ip'] }} ebgp-multihop 2
+  neighbor {{ key['vpn_ip'] }} password {{ key['msu_id'] }}
+  neighbor {{ key['vpn_ip'] }} version 4
+  neighbor {{ key['vpn_ip'] }} fall-over
+  neighbor {{ key['vpn_ip'] }} activate
+  neighbor {{ key['vpn_ip'] }} send-community
+  neighbor {{ key['vpn_ip'] }} next-hop-self
+  neighbor {{ key['vpn_ip'] }} default-originate
+  neighbor {{ key['vpn_ip'] }} as-override
+  neighbor {{ key['vpn_ip'] }} soft-reconfiguration inbound
+  neighbor {{ key['vpn_ip'] }} prefix-list default-only out
+  neighbor {{ key['vpn_ip'] }} route-map USER-VPN-{{ key['cpe_router'] }}-{{ key['service_type'] }}-IN in
+ !
+
+route-map USER-VPN-{{ key['cpe_router'] }}-{{ key['service_type'] }}-IN permit 10
+ match community 1
+ set local-preference 80
+ set extcommunity soo {{ key['site_id'] }}:{{ key['route_target'] }}
+!
+route-map USER-VPN-{{ key['cpe_router'] }}-{{ key['service_type'] }}-IN permit 20
+ match community 2
+ set local-preference 100
+ set extcommunity soo {{ key['site_id'] }}:{{ key['route_target'] }}
+!
+route-map USER-VPN-{{ key['cpe_router'] }}-{{ key['service_type'] }}-IN permit 30
+ match community 3
+ set local-preference 110
+ set extcommunity soo {{ key['site_id'] }}:{{ key['route_target'] }}
+!
+route-map USER-VPN-{{ key['cpe_router'] }}-{{ key['service_type'] }}-IN permit 40
+ match community 4
+ set local-preference 120
+ set extcommunity soo {{ key['site_id'] }}:{{ key['route_target'] }}
+!
+route-map USER-VPN-{{ key['cpe_router'] }}-{{ key['service_type'] }}-IN permit 50
+ set local-preference 100
+ set extcommunity soo {{ key['site_id'] }}:{{ key['route_target'] }}
+!

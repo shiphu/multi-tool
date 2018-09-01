@@ -1,0 +1,39 @@
+{{ key['pe_header'] }}
+
+interface {{ key['nms_pe_port'] }}
+ service instance {{ key['nms_vlan'] }} ethernet
+  description NMS-{{ key['cpe_router'] }}
+  encapsulation dot1q {{ key['nms_vlan'] }}
+  rewrite ingress tag pop 1 symmetric
+  exit
+!
+
+bridge-domain {{ key['nms_vlan'] }}
+ member {{ key['nms_pe_port'] }} service-instance {{ key['nms_vlan'] }}
+!
+
+interface {{ key['logical_pe_port'] }}{{ key['nms_vlan'] }}
+ description NMS-{{ key['cpe_router'] }}
+ ip vrf forwarding CPE-MGMT
+ ip address {{ key['nms_pe_ip'] }} 255.255.255.254
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ encapsulation dot1Q {{ key['nms_vlan'] }}
+ no shut
+end
+
+router bgp 21992
+ address-family ipv4 vrf CPE-MGMT
+  neighbor {{ key['nms_cpe_ip'] }} peer-group CPE-MGMT-PEER
+  neighbor {{ key['nms_cpe_ip'] }} ebgp-multihop 255
+  neighbor {{ key['nms_cpe_ip'] }} password {{ key['msu_id'] }}
+  neighbor {{ key['nms_cpe_ip'] }} fall-over
+  neighbor {{ key['nms_cpe_ip'] }} activate
+  neighbor {{ key['nms_cpe_ip'] }} route-map CPE-MGMT-To-NOC-Active-IN in
+ exit
+exit
+
+{% for item in key['pe_service_configs'] -%}
+{{ item }}
+{% endfor %}

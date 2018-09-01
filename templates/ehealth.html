@@ -1,0 +1,391 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid banner">
+
+    <div class="row justify-content-center">
+        <div class="jumbotron-fluid py-5">
+            <h2 class="col display-3">eHealth Path Name Generator</h2>
+            <hr class="my-2">
+            <p class="lead text-center">Choose a site type</p>
+
+            <div class="row">
+                <div class="col text-center">
+                    <div class="btn-group btn-group-toggle mb-4 mt-2">
+                        <label class="btn btn-outline-primary btn-lg">
+                            <input type="radio" name="options" id="singleCpeOption" autocomplete="off"> Single CPE
+                        </label>
+                        <label class="btn btn-outline-primary btn-lg">
+                            <input type="radio" name="options" id="dualCpeOption" autocomplete="off">Dual CPE
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form>
+    <div class="container-fluid py-5 siteBg" id="singleCpeFields">
+        <div class="row justify-content-center">
+            <div class="card-deck w-50">
+                <div class="col-5">
+                    <div class="card border border-dark">
+                        <div class="card-header">
+                            <h3 id="pSiteLabel">Site Fields </h3>
+                            <h6 class="card-subtitle mb-2">Fill in the fields below and press Generate</h6>
+                        </div>
+                        <div class="card-body">
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="siteBW">Site Bandwidth</label>
+                                    <input type="number" class="form-control" id="siteBW">
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="peRouterList">PE Router</label>
+                                    <select class="form-control" id="peRouterList">
+                                        <option disabled selected>Select</option>
+                                        <option value="EBCKONCBPED10">EBCKONCBPED10</option>
+                                        <option value="EBCKONCBPED11">EBCKONCBPED11</option>
+                                        <option value="HMTNONKJPED10">HMTNONKJPED10</option>
+                                        <option value="KGTNONGWPED10">KGTNONGWPED10</option>
+                                        <option value="KTNRONOMPED10">KTNRONOMPED10</option>
+                                        <option value="LONDONATPED10">LONDONATPED10</option>
+                                        <option value="OTWBONPZPED10">OTWBONPZPED10</option>
+                                        <option value="SDBRONEMPED10">SDBRONEMPED10</option>
+                                        <option value="TDBAONIZPED10">TDBAONIZPED10</option>
+                                        <option value="TOROONXNPED10">TOROONXNPED10</option>
+                                        <option value="TOROONXNPED11">TOROONXNPED11</option>
+                                        <option value="UTOPONADPED10">UTOPONADPED10</option>
+                                        <option value="WNDSONWGPED10">WNDSONWGPED10</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="cpeRouter">CPE Router</label>
+                                    <input type="text" class="form-control" id="cpeRouter">
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="srx3600">SRX3600 VPN</label>
+                                    <input type="text" class="form-control" id="srx3600" tabindex="4" placeholder="Select a PE router" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="asr9k">ASR9K Router</label>
+                                    <input type="text" class="form-control" id="asr9k" tabindex="5" placeholder="Select a PE router" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="aSite">A-Site</label>
+                                    <input type="text" class="form-control" id="aSite" tabindex="6" placeholder="Select a PE router" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="zSite">Z-Site</label>
+                                    <input type="text" class="form-control" id="zSite">
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col mt-1" align="center">
+                                    <button type="button" class="btn btn-primary" id="genPathsBtnPrimary">
+                                        Generate
+                                    </button>
+                                    <button type ="button" class="btn btn-dark" title= "Toggle lock to prevent editing" id="toggleLockBtnPrimary">
+                                        <span class="fa fa-lock" id="lockIcon"></span>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-7">
+                    <div class="card border border-dark">
+                        <div class="card-header">
+                            <h3 id="pPathLabel"> Path Names </h3>
+                            <h6 class="card-subtitle mb-2">Generated path names will appear here</h6>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <div class="col">
+                                    <h3>Region 3</h3>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+
+                                <div class="col">
+                                    <label for="r3AccessLink"> Region 3 Access Link</label>
+                                    <input type="text" class="form-control" id="r3AccessLink" readonly>
+                                </div>
+
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="r3HotFacility"> Region 3 Hot Facility </label>
+                                    <input type="text" class="form-control" id="r3HotFacility" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="r3Nms"> Region 3 NMS </label>
+                                    <input type="text" class="form-control" id="r3Nms" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="peToSrx"> PE Router to SRX3600 </label>
+                                    <input type="text" class="form-control" id="peToSrx" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <hr>
+                                    <h3>Region 1</h3>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="r1AccessLink"> Region 1 Access Link: </label>
+                                    <input type="text" class="form-control" id="r1AccessLink" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="r1HotFacility"> Region 1 Hot Facility </label>
+                                    <input type="text" class="form-control" id="r1HotFacility" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="r1Nms"> Region 1 NMS </label>
+                                    <input type="text" class="form-control" id="r1Nms" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group row mt-2">
+                                <div class="col text-center">
+                                    <button class="btn btn-dark" type="reset" id="resetBtnPrimary">
+                                        <span class="fa fa-undo" aria-hidden="true"> </span>
+                                        Reset
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
+
+<form>
+    <hr class="w-50 mb-5" id="divider" style="display: none">
+    <div class="container-fluid pt-3 siteBg mb-3" id="dualCpeFields" style="display: none">
+        <div class="row justify-content-center">
+            <div class="card-deck w-50">
+                <div class="col-5">
+                    <div class="card border border-dark">
+                        <div class="card-header">
+                            <h3> Redundant Site Fields </h3>
+                            <h6 class="card-subtitle mb-2 ">Fill in the fields below and press Generate</h6>
+                        </div>
+                        <div class="card-body">
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="siteBW">Site Bandwidth</label>
+                                    <input type="number" class="form-control" id="siteBWRe">
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="peRouterList">PE Router</label>
+                                    <select class="form-control" id="peRouterListRe">
+                                        <option disabled selected>Select</option>
+                                        <option value="EBCKONCBPED10">EBCKONCBPED10</option>
+                                        <option value="EBCKONCBPED11">EBCKONCBPED11</option>
+                                        <option value="HMTNONKJPED10">HMTNONKJPED10</option>
+                                        <option value="KGTNONGWPED10">KGTNONGWPED10</option>
+                                        <option value="KTNRONOMPED10">KTNRONOMPED10</option>
+                                        <option value="LONDONATPED10">LONDONATPED10</option>
+                                        <option value="OTWBONPZPED10">OTWBONPZPED10</option>
+                                        <option value="SDBRONEMPED10">SDBRONEMPED10</option>
+                                        <option value="TDBAONIZPED10">TDBAONIZPED10</option>
+                                        <option value="TOROONXNPED10">TOROONXNPED10</option>
+                                        <option value="TOROONXNPED11">TOROONXNPED11</option>
+                                        <option value="UTOPONADPED10">UTOPONADPED10</option>
+                                        <option value="WNDSONWGPED10">WNDSONWGPED10</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="cpeRouterRe">CPE Router</label>
+                                    <input type="text" class="form-control" id="cpeRouterRe">
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="srx3600Re">SRX3600 VPN</label>
+                                    <input type="text" class="form-control" id="srx3600Re" placeholder="Select a PE Router" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="asr9kRe">ASR9K Router</label>
+                                    <input type="text" class="form-control" id="asr9kRe" placeholder="Select a PE Router" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="aSiteRe">A-Site</label>
+                                    <input type="text" class="form-control" id="aSiteRe" placeholder="Select a PE Router" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="zSiteRe">Z-Site</label>
+                                    <input type="text" class="form-control" id="zSiteRe">
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col mt-1" align="center">
+                                    <button type ="button" class="btn btn-dark" id="genPathsBtnRedundant">
+                                        Generate
+                                    </button>
+                                    <button type ="button" class="btn btn-dark" title="Toggle lock to prevent editing" id="toggleLockBtnRedundant">
+                                        <span class="fa fa-lock" aria-hidden="true" id="lockIconRe"></span>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-7">
+                    <div class="card border border-dark">
+                        <div class="card-header">
+                            <h3> Redundant Path Names </h3>
+                            <h6 class="card-subtitle mb-2 ">Generated path names will appear here</h6>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <div class="col">
+                                    <h3>Region 3</h3>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="r3AccessLink"> Region 3 Access Link </label>
+                                    <input type="text" class="form-control" id="r3AccessLinkRe" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="r3HotFacility"> Region 3 Hot Facility </label>
+                                    <input type="text" class="form-control" id="r3HotFacilityRe" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="r3Nms"> Region 3 NMS </label>
+                                    <input type="text" class="form-control" id="r3NmsRe" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="peToSrx"> PE Router to SRX3600 </label>
+                                    <input type="text" class="form-control" id="peToSrxRe" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <hr>
+                                    <h3>Region 1</h3>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="r1AccessLink"> Region 1 Access Link </label>
+                                    <input type="text" class="form-control" id="r1AccessLinkRe" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="r1HotFacility"> Region 1 Hot Facility </label>
+                                    <input type="text" class="form-control" id="r1HotFacilityRe" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col">
+                                    <label for="r1Nms"> Region 1 NMS </label>
+                                    <input type="text" class="form-control" id="r1NmsRe" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group row mt-2">
+                                <div class="col text-center">
+                                    <button class="btn btn-dark" type="reset" id="resetBtnRedundant">
+                                        <span class="fa fa-undo" aria-hidden="true"></span>
+                                        Reset
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
+
+<script src="../static/js/ehealth-script.js"></script>
+{% endblock %}

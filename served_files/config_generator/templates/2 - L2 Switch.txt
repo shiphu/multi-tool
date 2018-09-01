@@ -1,0 +1,46 @@
+{{ key['switch_header'] }}
+
+interface {{ key['asr_nms_port'] }} l2transport
+ description .............T....... {{ key['nms_path'] }}
+ encapsulation dot1q {{ key['nms_vlan'] }}
+!
+interface {{ key['asr_45w_port'] }} l2transport
+ description .............T....... {{ key['vpn_path'] }}
+ encapsulation dot1q {{ key['vpn_vlan'] }}
+!
+interface {{ key['asr_46w_port'] }} l2transport
+ description .............T....... {{ key['vpn_path'] }}
+ encapsulation dot1q {{ key['vpn_vlan'] }}
+!
+
+interface {{ key['asr_nms_nni_port'] }} l2transport
+ description .............T....... {{ key['nms_path'] }}
+ {{ key['nms_trunk_config'] }}
+ {% if key['stag_vlan'] != '' -%}
+ rewrite ingress tag pop 1 symmetric
+ {%- endif %}
+!
+interface {{ key['asr_vpn_nni_port'] }} l2transport
+ description .............T....... {{ key['vpn_path'] }}
+ {{ key['vpn_trunk_config'] }}
+ {% if key['stag_vlan'] != '' -%}
+ rewrite ingress tag pop 1 symmetric
+ {%- endif %}
+!
+l2vpn
+ xconnect group Local-Switch
+  p2p NMS-01-{{ key['cpe_router'] }}
+   interface {{ key['asr_nms_port'] }}
+   interface {{ key['asr_nms_nni_port'] }}
+  !
+ !
+!
+l2vpn
+ bridge group SRX3600_RETH0_{{ key['pop_clli'] }}
+  bridge-domain eHealth-VPN-{{ key['cpe_router'] }}
+   interface {{ key['asr_45w_port'] }}
+   interface {{ key['asr_46w_port'] }}
+   interface {{ key['asr_vpn_nni_port'] }}
+  !
+ !
+!

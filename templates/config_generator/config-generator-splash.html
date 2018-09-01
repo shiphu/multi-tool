@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}
+<title>Config File Generator</title>
+{% endblock %}
+{% block content %}
+    <div class="container-fluid banner">
+        <div class="row justify-content-center">
+            <div class="jumbotron-fluid py-5">
+                <h1 class="display-3">Config Generator</h1>
+                <hr>
+                <div class="form-row">
+                    <div class="col text-right">
+                        <label for="siteType" class="lead">Select a equipment template</label>
+                    </div>
+
+                    <div class="col text-left">
+                        <select class="form-control w-50" id="configType">
+                            <option selected disabled value="">--Select--</option>
+                            <option value="{{ url_for('equipment_template', equipment='srx') }}">SRX</option>
+                            <option value="{{ url_for('equipment_template', equipment='asr') }}">ASR903</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% block body %} {% endblock %}
+<script src="{{ url_for('static', filename='js/config-script.js') }}"></script>
+{% endblock %}
+

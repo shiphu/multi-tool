@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid banner">
+
+    <div class="row justify-content-center">
+        <div class="jumbotron-fluid py-5">
+            <h2 class="col display-3">COIN Path Name Generator</h2>
+            <hr class="my-2">
+        </div>
+    </div>
+</div>
+
+<form>
+    <div class="container form-group mt-3" align="center">
+        <div class="card w-50">
+
+            <div class="card-header">
+                Enter 2 POP codes to get their COIN path name
+                <span>
+            <a href="#coinModal" data-toggle="modal" class="popQuestion fas fa-question-circle" id="openTable"></a>
+          </span>
+
+                <div id="coinModal" class="modal fade" role="dialog">
+                    <div class="modal-dialog">
+
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title">POP Site List</h4>
+                                <hr>
+                            </div>
+                            <div class="modal-body">
+
+                                <table class="table table-hover table-sm">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col">POP Code</th>
+                                        <th scope="col">DWDM Device</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="coinTableBody">
+                                    </tbody>
+                                </table>
+
+                            </div>
+                            <button type="button" class="btn btn-default closeTable" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="card-body">
+
+                <div class="row">
+                    <div class="col">
+                        <input type="text" id="pop1Input" class="form-control popBox" placeholder="POP #1">
+                        <span class="coinMessage" id="pop1Message">#</span>
+                    </div>
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col">
+                        <input type="text" id="pop2Input" class="form-control popBox" placeholder="POP #2">
+                        <span class="coinMessage" id="pop2Message">#</span>
+                    </div>
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col">
+                        <button class="btn btn-primary" type="reset" id="resetCoinPath">Clear</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <hr class="w-75 mt-0">
+
+            <div class="row coinPaths pb-4" id="coinPathContainer">
+                <div class="col">
+                    <label for="generatedCoinPath">COIN Path:</label>
+                    <input type="text" id="generatedCoinPath" size="30" class="form-control coinBox" readonly>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</form>
+
+<script src="../static/js/coin-script.js"></script>
+
+{% endblock %}
+

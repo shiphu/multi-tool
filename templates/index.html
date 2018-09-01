@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container-fluid banner">
+        <div class="row justify-content-center">
+            <div class="jumbotron-fluid py-5">
+                <h2 class="col display-3">Provisioning Multi-Tool</h2>
+                <hr class="my-2">
+            </div>
+        </div>
+    </div>
+    <div class="container mt-3" id="homePage">
+        <div class="card-deck">
+            <div class="card">
+                <div class="card-header">
+                    <a href="{{ url_for('config_generator') }}">Config Generator</a>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Generates configuration files for equipment.</p>
+                    <p>Currently supports:</p>
+                    <ul>
+                        <li>New SRX345 single & dual CPE</li>
+                    </ul>
+                    <p>In progress:</p>
+                    <ul>
+                        <li>New single ports</li>
+                        <li>New ASR servers</li>
+                        <li>Decommission SRX345 single & dual CPE</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <a href="{{ url_for('data_loader') }} ">Granite Data Loader</a>
+                </div>
+                <div class="card-body">
+                    <p>
+                        Creates a data file to be used with
+                        <a href="http://ossinv1.itmc.ohsc.com:8080/GraniteDataLoader/" target="_blank">Granite Data Loader.</a>
+                    </p>
+                    <p>
+                        Based on the generated data file, Granite Data Loader has the ability to do the following in Xng/Granite:
+                    <ul>
+                        <li>Create ports, channels & IP subnets</li>
+                        <li>Assign IP addresses to ports</li>
+                        <li>Create equipment (routers, terminal servers, etc.)</li>
+                    </ul>
+                    </p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    Path Names
+                </div>
+                <div class="card-body">
+                    <h4 class="card-title pathNames"><a class="pathNames" href="{{ url_for('ehealth') }}">eHealth</a></h4>
+                    <p class="card-text">
+                        Simplifies the process of modeling eHealth sites in Xng/Granite. The tool will automatically create
+                        path names and also provides easy access to site details (for quick copy & pasting).
+                    </p>
+
+                    <h4 class="card-title pathNames"><a class="pathNames" href="{{ url_for('coin') }}">COIN</a></h4>
+                    <p class="card-text">
+                        Generates the Xng/Granite path name of the wavelength channel between 2 POP sites.
+
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,206 @@
+/*Global CSS*/
+body {
+    font-family: 'Open Sans', sans-serif;
+    background-color: white;
+}
+.banner {
+    color: #333333;
+    background: -moz-linear-gradient(#ABC5F7, white);
+    background: -webkit-linear-gradient(#ABC5F7, white);
+    background: -o-linear-gradient(#ABC5F7, #F1F3F6);
+}
+
+.siteBg {display: none;}
+
+nav {
+    background-color: #ABC5F7;
+    color: #4A4C82;
+}
+
+.nav-link {
+    color: #4A4C82 !important;
+}
+
+#homePage a {
+    color: #F5F5F5;
+    text-decoration: underline;
+}
+
+#homePage a:hover, a.pathNames:hover, a.nav-link:hover { color:#5387D6 !important; }
+
+a.pathNames {
+    color: #333333 !important;
+}
+
+hr { background-color: #707070; }
+
+/*.btn {
+    background-color: #5A90E0;
+    color: #EEEEF3;
+}*/
+
+
+/*.btn:hover {background-color: #413B86;}*/
+
+.logo {height: 50px;}
+
+/* eHealth CSS */
+.card-header {
+    background-color: #535860;
+    color: #F1F3F6;}
+
+/*.card {background-color: #E0E9FE;}*/
+.card {background-color: #F4F5F7;}
+
+
+/*COIN CSS*/
+.popBox {
+    width: 100px;
+    text-align: center;
+    position: sticky;
+}
+
+.coinBox {width: 80%;}
+
+.coinMessage {visibility: hidden;}
+
+.popQuestion {
+    float: right;
+    color: white !important;
+}
+
+.popQuestion:hover {text-decoration: none;}
+
+.modal-body, .modal-dialog, .modal, .modal-header{
+    color: black;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.closeTable {
+    width:20%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 20px;
+}
+
+table, th, td, tr {
+    background-color: #E0E9FE;
+    border: 1px solid grey !important;
+}
+
+tr:hover {
+    background: #EDB01C !important;
+    color: red;
+}
+
+/*Config Generator CSS*/
+.form-row {
+    padding-top: 10px;
+    margin-bottom: 10px !important;
+}
+
+#singleCpeForm {
+    width: 40%;
+}
+
+.form-wrapper {
+    /*display: none;*/
+    margin-left: auto;
+    margin-right: auto;
+    width: 95%;
+
+}
+
+.form-wrapper label {
+    text-align: left;
+}
+
+.tab-header{
+    background-color: #D50000 !important;
+}
+
+.tab-header a:link { color: white !important;}
+
+.tab-header a:link.active, .tab-header a:hover { color: #333333 !important; }
+
+.nav-tabs .nav-link { border: none; }
+
+.nav-link.active { background-color: #F4F5F7 !important; }
+
+.labelHeader { color: #F1F3F6; }
+
+a.labelHeader:hover { color: #DEDEDE !important; }
+
+.errorMessage {
+    display: none;
+    color: red !important;
+}
+
+.center {
+    display: block !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+
+.hidden {
+    display: none;
+}
+
+
+.wrapper {
+    display: none;
+}
+
+.errorInput {
+    background-color: #DE6969
+}
+
+#routePe {
+    width: 240px;
+}
+
+#configAccordion a:link {color: white;}
+#configAccordion a:visited, #configAccordion a:hover, #configAccordion a:active {
+  color: #DE6969;
+}
+
+.icon, .icon a {
+    float: right;
+    color: white;
+    font-size: 15pt;
+    text-decoration: none !important;
+}
+
+a.icon:hover {
+    color: #D50000 !important;
+}
+
+#download {
+    font-size: 30pt;
+}
+
+#configDownload a:link, #dataloaderDownload a:link{
+    text-decoration: underline;
+}
+
+#dataloaderDownload i {
+    font-size: 20pt;
+}
+
+#configTextArea a:link, #configTextAreaBackup a:link {
+    color: white;
+}
+
+#configTextArea .card-header, #configTextArea textarea, #configTextAreaBackup .card-header, #configTextAreaBackup textarea {
+    width: 85%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.portSelect :disabled {
+    color: #D0D0D0;
+}
+
+

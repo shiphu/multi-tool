@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% block title %}
+    <title>Provisioning Multi-Tool</title>
+    {% endblock %}
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto" rel="stylesheet">
+    <link rel="stylesheet"
+          href="https://use.fontawesome.com/releases/v5.1.0/css/all.css"
+          integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt"
+          crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="{{ url_for('static', filename='js/jquery-3.3.1.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+</head>
+<body>
+<nav class="navbar navbar-expand-sm">
+    <span class="navbar-brand lead">Provisioning Multi-Tool</span>
+
+    <div class="collapse navbar-collapse">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="{{ url_for('home') }} ">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('config_generator') }}">Config Generator</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('data_loader') }} ">Granite Data Loader</a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown">
+                    Path Names
+                </a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="{{ url_for('ehealth') }}">eHealth</a>
+                    <a class="dropdown-item" href="{{ url_for('coin') }}">COIN</a>
+                </div>
+            </li>
+        </ul>
+        <img src="{{ url_for('static', filename='misc/logo.png') }}" class="logo">
+    </div>
+</nav>
+{% block content %} {% endblock %}
+</body>
+</html>

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid banner">
+    <div class="row justify-content-center">
+        <div class="jumbotron-fluid py-5">
+            <h1 class="display-3">Data File Generator</h1>
+            <hr>
+        </div>
+    </div>
+</div>
+<div class="container w-25 mt-4">
+    <div class="list-group" id="dataloaderDownload">
+        <ul>
+            <li class="list-group-item list-group-item-success">Data files successfully generated!</li>
+            <li class="list-group-item">
+                Step 1)<br><br>
+                <i class="fas fa-file-archive download"></i>   <a href="{{ url_for('download_file', file_type='data_zip')}}" download>Download data files</a>
+                <br><br>
+                <p> Or download individual data files below</p>
+                <i class="fas fa-file"></i>  <a href="{{ url_for('download_file', file_type='data_r1')}}">Region 1 data file</a>
+                <br>
+                <i class="fas fa-file"></i>  <a href="{{ url_for('download_file', file_type='data_r3')}}">Region 3 data file</a>
+            </li>
+            <li class="list-group-item">Step 2) Go to <a href="http://ossinv1.itmc.ohsc.com:8080/GraniteDataLoader/" target="_blank">Granite Data Loader</a></li>
+            <li class="list-group-item">Step 3) Upload file(s) to Granite Data Loader and follow instructions</li>
+        </ul>
+    </div>
+</div>
+
+{% endblock %}

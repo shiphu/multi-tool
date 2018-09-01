@@ -1,0 +1,6 @@
+ip sla {{ key['primary_ipsla_entry'] }}
+icmp-jitter {{ key['cpe_ip'] }} num-packets 3
+vrf {{ key['ipsla_vrf'] }}
+tag "{{ key['clci'] }}"
+frequency 300
+ip sla schedule {{ key['primary_ipsla_entry'] }} life forever start-time now

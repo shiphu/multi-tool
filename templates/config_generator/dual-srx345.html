@@ -1,0 +1,668 @@
+{% extends "config_generator/config-generator-splash.html" %}
+{% block title %}
+<title>New SRX Dual CPE</title>
+{% endblock %}
+{% block body %}
+    <form method="POST" id="form">
+        <div class="hidden">
+            <input type="text" id="siteTypeHidden" name="siteTypeHidden" value="{{ site }}">
+            <input type="text" id="numServicesHidden" name="numServicesHidden" value="{{ services }}">
+            <input type="text" id="deviceHidden" name="deviceHidden" value="{{ device }}">
+        </div>
+
+        <div class="container-fluid w-75 my-3">
+            <div class="alert alert-danger hidden" role="alert" id="errorAlert">
+              <h4 class="alert-heading">Error</h4>
+              <p>Please check the following fields:</p>
+              <hr>
+              <ul class="mb-0" id="errorList"></ul>
+            </div>
+            <div class="card-deck">
+                <!--------- BEGIN SINGLE CPE SECTION --------->
+                <div class="card pb-3">
+                    <div class="tab-header">
+                        <h3 class="text-center text-white mb-3 pt-2">Primary</h4>
+                        <ul class="nav nav-tabs justify-content-center" role="tablist">
+                            <li class="nav-item">
+                              <a class="nav-link active" data-toggle="tab" href="#customer" role="tab">Customer</a>
+                            </li>
+                            <li class="nav-item">
+                              <a class="nav-link" data-toggle="tab" href="#management" role="tab">Management</a>
+                            </li>
+                            <li class="nav-item">
+                              <a class="nav-link" data-toggle="tab" href="#service" role="tab">VPN</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="form-wrapper">
+                        <div class="tab-content">
+                            <!--BEGIN CUSTOMER EQUIPMENT SECTION-->
+                            <div class="tab-pane fade show active" id="customer" role="tabpanel">
+                                <div class="form-row mt-4">
+                                    <label class="col-3 col-form-label"  for="siteID">Site Key</label>
+                                    <div class="col-4">
+
+                                        <input type="text" class="form-control" id="siteID" name="siteID" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <label class="col-3 col-form-label"  for="msuID">MSU ID</label>
+                                    <div class="col-6">
+
+                                        <input type="text" class="form-control" id="msuID" name="msuID" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <label class="col-3 col-form-label"  for="lhinID">LHIN</label>
+                                    <div class="col-6">
+
+                                        <select class="form-control" id="lhinID" name="lhinID" required>
+                                            <option selected disabled value=""></option>
+                                            {% for item in dropdown_lists['lhin'] %}
+                                                <option>{{ item }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <label class="col-3 col-form-label"  for="siteBandwidth">Site Bandwidth</label>
+                                    <div class="col-4">
+
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="siteBandwidth" name="siteBandwidth" required>
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">Mbps</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <label class="col-3 col-form-label"  for="equipmentName">Equipment Name</label>
+                                    <div class="col-6">
+                                        <input type="text" class="form-control" id="equipmentName" name="equipmentName" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <label class="col-3 col-form-label"  for="loopbackIP">Loopback IP</label>
+                                    <div class="col-6">
+
+                                        <input type="text" class="form-control" id="loopbackIP" name="loopbackIP" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <label class="col-3 col-form-label"  for="rethInterface">SRX Reth Interface</label>
+                                    <div class="col-4">
+
+                                        <select class="form-control" id="rethInterface" name="rethInterface" required>
+                                            <option selected disabled value=""></option>
+                                            <option>reth0</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <label class="col-3 col-form-label"  for="uplinkPortSpeed">Port Speed</label>
+                                    <div class="col-4">
+
+                                        <div class="input-group">
+                                            <select class="form-control" id="uplinkPortSpeed" name="uplinkPortSpeed" required>
+                                                <option selected disabled value=""></option>
+                                                {% for item in dropdown_lists['port_speeds']  %}
+                                                    <option>{{ item }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">Mbps</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--END CUSTOMER EQUIPMENT SECTION-->
+
+                            <!-- BEGIN VPN CONCENTRATOR SECTION -->
+                            <div class="tab-pane fade" id="management" role="tabpanel">
+                                <div class="form-row mt-4">
+                                    <label class="col-4 col-form-label">NMS VLAN</label>
+                                    <div class="col-4">
+                                        <input type="text" class="form-control" id="nmsVlan" name="nmsVlan" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <label class="col-4 col-form-label" for="nmsIP">NMS Network Address</label>
+                                    <div class="col-6">
+                                        <input type="text" class="form-control" id="nmsIP" name="nmsIP" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <label class="col-4 col-form-label">VPN VLAN</label>
+                                    <div class="col-4">
+                                        <input type="text" class="form-control" id="vpnConcVlan" name="vpnConcVlan" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <label class="col-4 col-form-label" for="vpnConcIP">VPN Network Address</label>
+                                    <div class="col-6">
+                                        <input type="text" class="form-control" id="vpnConcIP" name="vpnConcIP" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-row mt-3">
+                                    <label class="col-4 col-form-label" for="vendorPort">Vendor NNI Interface</label>
+                                    <div class="col-6">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <select class="custom-select" id="vendorInterface" name="vendorInterface" required>
+                                                    <option selected disabled value=""></option>
+                                                    <option>GigabitEthernet</option>
+                                                    <option>TenGigabitEthernet</option>
+                                                </select>
+                                            </div>
+                                            <input type="text" class="form-control" id="vendorPort" name="vendorPort" required>
+                                        </div>
+                                    </div>
+
+                                    <a class="col-2 col-form-label" href="javascript:void(0);">
+                                        <i class="far fa-question-circle"
+                                        data-toggle="tooltip"
+                                        data-placement="top"
+                                        title="e.g. 0/0/0/0">
+                                        </i>
+                                    </a>
+
+                                </div>
+
+                                <div class="form-row">
+                                    <label class="col-4 col-form-label" for="sTagVlan">S-TAG VLAN</label>
+                                    <div class="col-4">
+                                        <input type="text" class="form-control" id="sTagVlan" name="sTagVlan" placeholder="Optional">
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- END VPN CONCENTRATOR SECTION -->
+
+                            <!-- BEGIN SERVICE SECTION -->
+                            <div class="tab-pane fade" id="service" role="tabpanel" aria-labelledby="contact-tab">
+                                <div id="serviceBody">
+                                    <div role="tab">
+                                        <div class="card-header mt-3 text-left">
+                                            <a data-toggle="collapse"
+                                               href="#vpnServiceCollapse"
+                                               id="serviceToggle"
+                                               class="labelHeader"
+                                               onclick="toggleHeaderIcon.call(this)">
+                                               VPN Service #<span id="vpnNumberLabel">1</span>
+                                               <i class="fas fa-minus icon"></i>
+                                            </a>
+
+                                        </div>
+                                    </div>
+                                    <div id="vpnServiceCollapse" class="show" role="tabpanel">
+                                        <div class="form-row mt-4">
+                                            <label class="col-3 col-form-label" for="serviceBandwidth">Bandwidth</label>
+                                            <div class="col-4">
+                                                <div class="input-group">
+                                                    <input type="number" class="form-control" id="serviceBandwidth" name="serviceBandwidth" required>
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text">Mbps</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <label class="col-3 col-form-label" for="serviceVlan">VLAN</label>
+                                            <div class="col-4">
+                                                <input type="text" class="form-control" id="serviceVlan" name="serviceVlan" required>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <label class="col-3 col-form-label" for="serviceType">Service Type</label>
+                                            <div class="col-6">
+                                                <select class="form-control" id="serviceType" name="serviceType" required>
+                                                    <option selected disabled value=""></option>
+                                                    {% for item in dropdown_lists['services'] %}
+                                                        <option>{{ item }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <label class="col-3 col-form-label" for="servicePeIP">PE Network Address</label>
+                                            <div class="col-6">
+                                                <input type="text" class="form-control" id="servicePeIP" name="servicePeIP" onchange="toggleValidateIP.call(this)" required>
+                                            </div>
+                                            <a class="col-2 col-form-label" href="javascript:void(0);">
+                                                <i class="far fa-question-circle"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Alternatively, paste in the port address (first available) and it will be converted to its network address.">
+                                                </i>
+                                            </a>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <label class="col-3 col-form-label" for="serviceCLCI">Circuit ID (CLCI)</label>
+                                            <div class="col-6">
+                                                <input type="text" class="form-control" id="serviceCLCI" name="serviceCLCI" required>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <label class="col-3 col-form-label" for="serviceCpeIP">CE Network Address</label>
+                                            <div class="col-6">
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control" id="serviceCpeIP" name="serviceCpeIP" onchange="toggleValidateIP.call(this)" required>
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text">/</span>
+                                                        <select class="form-control" id="serviceCpeCIDR" name="serviceCpeCIDR" required>
+                                                            {% for item in dropdown_lists['cidr'] %}
+                                                                {% if item != 31 %}
+                                                                    <option>{{ item }}</option>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <a class="col-2 col-form-label" href="javascript:void(0);">
+                                                <i class="far fa-question-circle"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Alternatively, paste in the port address (first available) and it will be converted to its network address.">
+                                                </i>
+                                            </a>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <label class="col-3 col-form-label" for="servicePort">Port</label>
+                                            <div class="col-4">
+                                                <select class="form-control portSelect" id="servicePort" name="servicePort" required>
+                                                    <option selected value=""></option>
+                                                    {% for item in dropdown_lists['primary_ports'] %}
+                                                        {% if item != none %}
+                                                            <option value='{{ item }}'>{{ item }}</option>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <label class="col-3 col-form-label" for="servicePortSpeed">Port Speed</label>
+                                            <div class="col-4">
+                                                <div class="input-group">
+                                                    <select class="form-control" id="servicePortSpeed" name="servicePortSpeed" required>
+                                                        <option selected disabled value=""></option>
+                                                        {% for item in dropdown_lists['port_speeds']  %}
+                                                            <option>{{ item }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text">Mbps</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <label class="col-3 col-form-label" for="serviceIPSLA">IP SLA Entry</label>
+                                            <div class="col-3">
+                                                <input type="number" class="form-control" id="serviceIPSLA" name="serviceIPSLA" onkeyup="incrementIPSLA.call(this)" required>
+                                                <small class="text-muted">Primary</small>
+                                            </div>
+                                            <div class="col-3">
+                                                <input type="number" class="form-control" id="serviceIPSLABackup" name="serviceIPSLABackup" required>
+                                                <small class="text-muted">Backup</small>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <label class="col-3 col-form-label" for="serviceHosts">Routed Hosts</label>
+                                            <div class="col-6">
+                                                <textarea rows="3" class="form-control" id="serviceHosts" name="serviceHosts" placeholder="Optional"></textarea>
+                                            </div>
+                                            <a class="col-2 col-form-label" href="javascript:void(0);">
+                                                <i class="far fa-question-circle"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Use comma delimited format for multiple hosts.">
+                                                </i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="vpnServiceWrapper">
+                                    <!--All clones go here-->
+                                </div>
+                            </div>
+                        </div>
+                        <!-- END SERVICE SECTION -->
+                    </div>
+                </div>
+                <!--------- END SINGLE CPE SECTION --------->
+
+                <!--------- BEGIN DUAL CPE SECTION --------->
+                <div class="card pb-3">
+                    <div class="tab-header">
+                        <h3 class="text-center text-white mb-3 pt-2">Backup</h4>
+                        <ul class="nav nav-tabs justify-content-center" role="tablist">
+                            <li class="nav-item">
+                              <a class="nav-link active" data-toggle="tab" href="#customerBackup" role="tab">Customer</a>
+                            </li>
+                            <li class="nav-item">
+                              <a class="nav-link" data-toggle="tab" href="#managementBackup" role="tab">Management</a>
+                            </li>
+                            <li class="nav-item">
+                              <a class="nav-link" data-toggle="tab" href="#serviceBackup" role="tab">VPN</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="form-wrapper">
+                        <div class="tab-content">
+                            <!--BEGIN CUSTOMER EQUIPMENT SECTION-->
+                            <div class="tab-pane fade show active" id="customerBackup" role="tabpanel">
+                                <div class="form-row mt-4">
+                                    <label class="col-3 col-form-label"  for="msuIDBackup">MSU ID</label>
+                                    <div class="col-6">
+                                        <input type="text" class="form-control" id="msuIDBackup" name="msuIDBackup" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <label class="col-3 col-form-label"  for="siteBandwidthBackup">Site Bandwidth</label>
+                                    <div class="col-4">
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="siteBandwidthBackup" name="siteBandwidthBackup" required>
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">Mbps</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <label class="col-3 col-form-label"  for="rethInterfaceBackup">SRX Reth Interface</label>
+                                    <div class="col-4">
+                                        <select class="form-control" id="rethInterfaceBackup" name="rethInterfaceBackup" required>
+                                            <option selected disabled value=""></option>
+                                            <option>reth20</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <label class="col-3 col-form-label"  for="uplinkPortSpeedBackup">Uplink Speed</label>
+                                    <div class="col-4">
+
+                                        <div class="input-group">
+                                            <select class="form-control" id="uplinkPortSpeedBackup" name="uplinkPortSpeedBackup" required>
+                                                <option selected disabled value=""></option>
+                                                {% for item in dropdown_lists['port_speeds']  %}
+                                                    <option>{{ item }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">Mbps</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--END CUSTOMER EQUIPMENT SECTION-->
+
+                            <!-- BEGIN VPN CONCENTRATOR SECTION -->
+                            <div class="tab-pane fade" id="managementBackup" role="tabpanel">
+                                <div class="form-row mt-4">
+                                    <label class="col-4 col-form-label" for="nmsVlanBackup">NMS VLAN</label>
+                                    <div class="col-4">
+                                        <input type="text" class="form-control" id="nmsVlanBackup" name="nmsVlanBackup" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <label class="col-4 col-form-label" for="nmsIPBackup">NMS Network Address</label>
+                                    <div class="col-6">
+                                        <input type="text" class="form-control" id="nmsIPBackup" name="nmsIPBackup" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <label class="col-4 col-form-label" for="vpnConcVlanBackup">VPN VLAN</label>
+                                    <div class="col-4">
+                                        <input type="text" class="form-control" id="vpnConcVlanBackup" name="vpnConcVlanBackup" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <label class="col-4 col-form-label" for="vpnConcIPBackup">VPN Network Address</label>
+                                    <div class="col-6">
+                                        <input type="text" class="form-control" id="vpnConcIPBackup" name="vpnConcIPBackup" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-row mt-3">
+                                    <label class="col-4 col-form-label" for="vendorPortBackup">Vendor NNI Interface</label>
+                                    <div class="col-6">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <select class="custom-select" id="vendorInterfaceBackup" name="vendorInterfaceBackup" required>
+                                                    <option selected disabled value=""></option>
+                                                    <option>GigabitEthernet</option>
+                                                    <option>TenGigabitEthernet</option>
+                                                </select>
+                                            </div>
+                                            <input type="text" class="form-control" id="vendorPortBackup" name="vendorPortBackup" required>
+                                        </div>
+                                    </div>
+
+                                    <a class="col-2 col-form-label" href="javascript:void(0);">
+                                        <i class="far fa-question-circle"
+                                        data-toggle="tooltip"
+                                        data-placement="top"
+                                        title="e.g. 0/0/0/0">
+                                        </i>
+                                    </a>
+                                </div>
+
+                                <div class="form-row">
+                                    <label class="col-4 col-form-label" for="sTagVlanBackup">S-TAG VLAN</label>
+                                    <div class="col-4">
+                                        <input type="text" class="form-control" id="sTagVlanBackup" name="sTagVlanBackup" placeholder="Optional">
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- END VPN CONCENTRATOR SECTION -->
+
+                            <!-- BEGIN SERVICE SECTION -->
+                            <div class="tab-pane fade" id="serviceBackup" role="tabpanel" aria-labelledby="contact-tab">
+                                <div id="serviceBodyBackup">
+                                    <div role="tab">
+                                        <div class="card-header mt-3 text-left">
+                                            <a data-toggle="collapse"
+                                               href="#vpnServiceCollapseBackup"
+                                               id="serviceToggle"
+                                               class="labelHeader"
+                                               onclick="toggleHeaderIcon.call(this)">
+                                               VPN Service #<span id="vpnNumberLabel">1</span>
+                                               <i class="fas fa-minus icon"></i>
+                                            </a>
+
+                                        </div>
+                                    </div>
+                                    <div id="vpnServiceCollapseBackup" class="show" role="tabpanel">
+                                        <div class="form-row mt-4">
+                                            <label class="col-3 col-form-label" for="serviceBandwidthBackup">Bandwidth</label>
+                                            <div class="col-4">
+                                                <div class="input-group">
+                                                    <input type="number" class="form-control" id="serviceBandwidthBackup" name="serviceBandwidthBackup" required>
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text">Mbps</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <label class="col-3 col-form-label" for="serviceVlanBackup">VLAN</label>
+                                            <div class="col-4">
+                                                <input type="text" class="form-control" id="serviceVlanBackup" name="serviceVlanBackup" required>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <label class="col-3 col-form-label" for="serviceTypeBackup">Service Type</label>
+                                            <div class="col-6">
+                                                <select class="form-control" id="serviceTypeBackup" name="serviceTypeBackup" required>
+                                                    <option selected disabled value=""></option>
+                                                    {% for item in dropdown_lists['services'] %}
+                                                        <option>{{ item }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <label class="col-3 col-form-label" for="servicePeIPBackup">PE Network Address</label>
+                                            <div class="col-6">
+                                                <input type="text" class="form-control" id="servicePeIPBackup" name="servicePeIPBackup" onchange="toggleValidateIP.call(this)" required>
+                                            </div>
+                                            <a class="col-2 col-form-label" href="javascript:void(0);">
+                                                <i class="far fa-question-circle"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Alternatively, paste in the port address (first available) and it will be converted to its network address.">
+                                                </i>
+                                            </a>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <label class="col-3 col-form-label" for="serviceCLCIBackup">Circuit ID (CLCI)</label>
+                                            <div class="col-6">
+                                                <input type="text" class="form-control" id="serviceCLCIBackup" name="serviceCLCIBackup" required>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <label class="col-3 col-form-label" for="serviceCpeIPBackup">CE Network Address</label>
+                                            <div class="col-6">
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control" id="serviceCpeIPBackup" name="serviceCpeIPBackup" onchange="toggleValidateIP.call(this)" required>
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text">/</span>
+                                                        <select class="form-control" id="serviceCpeCIDRBackup" name="serviceCpeCIDRBackup" required>
+                                                            {% for item in dropdown_lists['cidr'] %}
+                                                                {% if item != 31 %}
+                                                                    <option>{{ item }}</option>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <a class="col-2 col-form-label" href="javascript:void(0);">
+                                                <i class="far fa-question-circle"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Alternatively, paste in the port address (first available) and it will be converted to its network address.">
+                                                </i>
+                                            </a>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <label class="col-3 col-form-label" for="servicePortBackup">Port</label>
+                                            <div class="col-4">
+                                                <select class="form-control portSelect" id="servicePortBackup" name="servicePortBackup" required>
+                                                    <option selected value=""></option>
+                                                    {% for item in dropdown_lists['backup_ports'] %}
+                                                        {% if item != none %}
+                                                            <option value='{{ item }}'>{{ item }}</option>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <label class="col-3 col-form-label" for="servicePortSpeedBackup">Port Speed</label>
+                                            <div class="col-4">
+                                                <div class="input-group">
+                                                    <select class="form-control" id="servicePortSpeedBackup" name="servicePortSpeedBackup" required>
+                                                        <option selected disabled value=""></option>
+                                                        {% for item in dropdown_lists['port_speeds']  %}
+                                                            <option>{{ item }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text">Mbps</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <label class="col-3 col-form-label" for="serviceIPSLABackup">IP SLA Entry</label>
+                                            <div class="col-3">
+                                                <input type="number" class="form-control" id="serviceIPSLABackup" name="serviceIPSLABackup" onkeyup="incrementIPSLA.call(this)" required>
+                                                <small class="text-muted">Primary</small>
+                                            </div>
+                                            <div class="col-3">
+                                                <input type="number" class="form-control" id="serviceIPSLABackupBackup" name="serviceIPSLABackupBackup" required>
+                                                <small class="text-muted">Backup</small>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <label class="col-3 col-form-label" for="serviceHostsBackup">Routed Hosts</label>
+                                            <div class="col-6">
+                                                <textarea rows="3" class="form-control" id="serviceHostsBackup" name="serviceHostsBackup" placeholder="Optional"></textarea>
+                                            </div>
+                                            <a class="col-2 col-form-label" href="javascript:void(0);">
+                                                <i class="far fa-question-circle"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Use comma delimited format for multiple hosts.">
+                                                </i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="vpnServiceWrapperBackup">
+                                    <!--All clones go here-->
+                                </div>
+                            </div>
+                        </div>
+                        <!-- END SERVICE SECTION -->
+                    </div>
+                </div>
+                <!--------- END DUAL CPE SECTION --------->
+            </div>
+        </div>
+        <hr class="w-75 my-5">
+        <div class="container w-25 my-5">
+            <div class="card">
+                <div class="row px-5 pt-3">
+                    <div class="col">
+                        <p>Ensure all mandatory fields in each section have been filled out.</p>
+                    </div>
+                </div>
+                <div class="row mt-1 mb-4">
+                    <div class="col text-center">
+                        <button type="submit" class="btn btn-primary btn-lg" id="submitButton">Generate</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}

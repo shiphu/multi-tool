@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container-fluid banner">
+        <div class="row justify-content-center">
+            <div class="jumbotron-fluid py-5">
+                <hr>
+            </div>
+        </div>
+    </div>
+
+    <div class="container w-50 mt-3">
+        <h1>Page Not Found</h1>
+        <p>{{ error }}</p>
+        <a href="/"><p>Take me back!</p></a>
+    </div>
+{% endblock %}

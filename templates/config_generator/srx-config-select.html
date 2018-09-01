@@ -1,0 +1,78 @@
+{% extends 'config_generator/config-generator-splash.html' %}
+{% block title %}
+<title>SRX Config</title>
+{% endblock %}
+{% block body %}
+<form id='configSelectForm' onsubmit="return routePeRouter()" method="POST">
+    <div class="container my-3">
+        <div class="card center" id="singleCpeForm">
+            <div class="card pb-3">
+                <div class="form-row px-3">
+                    <label class="col-5 col-form-label" for="srxDevice">Device Type</label>
+                    <div class="col">
+                        <select class="form-control" id="srxDevice" name="srxDevice" required>
+                            <option selected disabled value=""></option>
+                            <option>SRX345</option>
+                            <option>SRX1500</option>
+                            <option>SRX1400</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row px-3">
+                    <label class="col-5 col-form-label" for="siteType">Site Type</label>
+                    <div class="col">
+                        <select class="form-control" style="display:inline;" id="siteType" name="siteType" required>
+                            <option selected disabled value=""></option>
+                            <option value="single">Single CPE</option>'
+                            <option value="dual">Dual CPE</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row px-3">
+                    <label class="col-5 col-form-label" for="peRouter">PE Router</label>
+                    <div class="col">
+                        <select class="form-control portSelect" id="peRouter" name="peRouter" required>
+                            <option selected disabled value=""></option>
+                            {% for item in dropdown_lists['pe_routers'] %}
+                                <option value="{{ item }}">{{ item }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row px-3 hidden" id="peBackup">
+                    <label class="col-5 col-form-label" for="peRouterBackup">PE Router (backup)</label>
+                    <div class="col">
+                        <select class="form-control portSelect" id="peRouterBackup" name="peRouterBackup">
+                            <option selected disabled value=""></option>
+                            {% for item in dropdown_lists['pe_routers'] %}
+                                <option value="{{ item }}">{{ item }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row px-3">
+                    <label class="col-5 col-form-label" or="numServices">VPN Services</label>
+                    <div class="col-5">
+                        <input class="form-control" type="number" id="numServices" name="numServices" maxlength="1" placeholder="#">
+                        <small id="numServicesError" class="form-text text-muted errorMessage">
+                            Invalid number
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-row px-3">
+                    <div class="col text-center">
+                        <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-angle-double-right"></i></button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
