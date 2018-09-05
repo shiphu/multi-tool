@@ -1,0 +1,292 @@
+{{ key['cpe_header'] }}
+
+set groups node0 system host-name {{ key['cpe_router'] }}
+set system host-name {{ key['cpe_router'] }}
+set system time-zone America/Toronto
+set system authentication-order radius
+set system authentication-order password
+set system root-authentication encrypted-password "$1$DvdfVdAa$T3U6H9rs20QjBtnu0eP4n/"
+set system radius-server 192.75.109.21 secret "$9$fTF6tuBcyeWLZUiHmP1REhevxNd"
+set system radius-server 192.75.109.21 timeout 5
+set system radius-server 192.75.109.21 source-address {{ key['loopback_ip'] }}
+set system radius-server 192.75.110.21 secret "$9$8O3XNV24JikmTzEcrlMWZUDjmf369"
+set system radius-server 192.75.110.21 timeout 5
+set system radius-server 192.75.110.21 source-address {{ key['loopback_ip'] }}
+set system login class itmc permissions admin
+set system login class itmc permissions control
+set system login class itmc permissions interface
+set system login class itmc permissions network
+set system login class itmc permissions routing
+set system login class itmc permissions secret
+set system login class itmc permissions snmp
+set system login class itmc permissions system
+set system login class itmc permissions view
+set system login class itmc allow-commands show
+set system login class itmc deny-commands edit
+set system login class ssha permissions admin
+set system login class ssha permissions control
+set system login class ssha permissions interface
+set system login class ssha permissions network
+set system login class ssha permissions routing
+set system login class ssha permissions secret
+set system login class ssha permissions snmp
+set system login class ssha permissions system
+set system login class ssha permissions view
+set system login class ssha allow-commands show
+set system login class ssha deny-commands edit
+set system login user admin uid 2001
+set system login user admin class super-user
+set system login user admin authentication encrypted-password "$1$a1PEYyyJ$vnxFpMWunJlS.xz/jzldh1"
+set system login user h1netmri uid 2003
+set system login user h1netmri class operator
+set system login user itmc uid 2002
+set system login user itmc class itmc
+set system login user itmc authentication encrypted-password "$1$K44YTp9l$GblaYX8./tpFy/exWu9ym1"
+set system login user rancidnet uid 2004
+set system login user rancidnet class super-user
+set system login user rancidnet authentication encrypted-password "$1$wwee/jZG$dylIHd.G3tF6sJfKCsoNV/"
+set system login user ssha uid 2005
+set system login user ssha class ssha
+set system login user ssha authentication encrypted-password "$1$Ui9MX7hK$MuTXarM9QYGbb/wqETmS0/"
+set system login user su uid 2006
+set system login user su class super-user
+set system login user su authentication encrypted-password "$1$VeRrTLRF$Bf0YLFXusYBNJ8Z/psDDd/"
+set system services ftp
+set system services ssh root-login allow
+set system syslog archive size 500k
+set system syslog archive files 10
+set system syslog user * any emergency
+set system syslog file messages any notice
+set system syslog file messages authorization info
+set system syslog file interactive-commands interactive-commands error
+set system syslog file kmd-logs daemon info
+set system syslog file kmd-logs match KMD
+set system syslog file INTupdown any info
+set system syslog file INTupdown match "LINK_DOWN|LINK_UP"
+set system syslog host 192.75.109.78 any notice
+set system syslog host 192.75.109.78 source-address {{ key['loopback_ip'] }}
+set system syslog host 192.75.110.78 any notice
+set system syslog host 192.75.110.78 source-address {{ key['loopback_ip'] }}
+set system syslog host 192.75.109.90 any any
+set system syslog host 192.75.109.90 source-address {{ key['loopback_ip'] }}
+set system syslog host 192.75.110.90 any any
+set system syslog host 192.75.110.90 source-address {{ key['loopback_ip'] }}
+set system ntp server 192.75.109.40 prefer
+set system ntp server 192.75.110.40
+set system ntp source-address {{ key['loopback_ip'] }}
+set chassis cluster reth-count 24
+set chassis cluster redundancy-group 0 node 0 priority 200
+set chassis cluster redundancy-group 0 node 1 priority 100
+set chassis cluster redundancy-group 1 node 0 priority 200
+set chassis cluster redundancy-group 1 node 1 priority 100
+set chassis cluster redundancy-group 1 preempt
+set chassis cluster redundancy-group 2 node 0 priority 100
+set chassis cluster redundancy-group 2 node 1 priority 200
+set chassis cluster redundancy-group 2 preempt
+set chassis cluster redundancy-group 3 node 0 priority 200
+set chassis cluster redundancy-group 3 node 1 priority 100
+set chassis cluster redundancy-group 3 preempt
+set chassis cluster redundancy-group 3 interface-monitor {{ key['uplink_port'] }} weight 255
+
+set security alg dns disable
+set security alg ftp disable
+set security alg h323 disable
+set security alg mgcp disable
+set security alg msrpc disable
+set security alg sunrpc disable
+set security alg rsh disable
+set security alg rtsp disable
+set security alg sccp disable
+set security alg sip disable
+set security alg sql disable
+set security alg talk disable
+set security alg tftp disable
+set security alg pptp disable
+
+set security flow allow-dns-reply
+set security flow tcp-mss ipsec-vpn mss 1350
+set security flow tcp-session no-syn-check
+set security flow tcp-session no-syn-check-in-tunnel
+set security flow tcp-session no-sequence-check
+
+set security screen ids-option untrust-screen icmp ping-death
+set security screen ids-option untrust-screen ip source-route-option
+set security screen ids-option untrust-screen ip tear-drop
+set security screen ids-option untrust-screen tcp syn-flood alarm-threshold 1024
+set security screen ids-option untrust-screen tcp syn-flood attack-threshold 200
+set security screen ids-option untrust-screen tcp syn-flood source-threshold 1024
+set security screen ids-option untrust-screen tcp syn-flood destination-threshold 2048
+set security screen ids-option untrust-screen tcp syn-flood timeout 20
+set security screen ids-option untrust-screen tcp land
+set security policies global policy permit-all match source-address any
+set security policies global policy permit-all match destination-address any
+set security policies global policy permit-all match application any
+set security policies global policy permit-all then permit
+
+set interfaces {{ key['uplink_port'] }} description {{ key['clfi'] }}
+set interfaces {{ key['uplink_port'] }} speed {{ key['uplink_port_speed'] }}
+set interfaces {{ key['uplink_port'] }} link-mode full-duplex
+set interfaces {{ key['uplink_port'] }} gigether-options no-auto-negotiation
+set interfaces {{ key['uplink_port'] }} gigether-options redundant-parent reth0
+
+set interfaces fab0 fabric-options member-interfaces ge-0/0/2
+set interfaces fab0 fabric-options member-interfaces ge-0/0/3
+set interfaces lo0 unit 1 family inet filter input PROTECT-RE
+set interfaces lo0 unit 1 family inet address {{ key['loopback_ip'] }}/32
+set interfaces reth0 per-unit-scheduler
+set interfaces reth0 vlan-tagging
+set interfaces reth0 redundant-ether-options redundancy-group 1
+
+set class-of-service scheduler-maps UPLINK-QoS forwarding-class expedited-forwarding scheduler EF
+set class-of-service scheduler-maps UPLINK-QoS forwarding-class assured-forwarding scheduler AF
+set class-of-service scheduler-maps UPLINK-QoS forwarding-class best-effort scheduler BE
+set class-of-service scheduler-maps UPLINK-QoS forwarding-class network-control scheduler AF
+set class-of-service schedulers EF priority strict-high
+set class-of-service schedulers AF transmit-rate percent 25
+set class-of-service schedulers AF priority high
+set class-of-service schedulers BE transmit-rate remainder
+set class-of-service schedulers BE priority low
+
+set snmp location {{ key['msu_id'] }}
+set snmp community ovadmin authorization read-write
+set snmp community ovadmin clients 192.75.109.57/32
+set snmp community ovadmin clients 192.75.110.58/32
+set snmp community ovadmin clients 192.75.109.40/32
+set snmp community ovadmin clients 192.75.110.40/32
+set snmp community ovadmin clients 192.75.109.90/32
+set snmp community ovadmin clients 192.75.110.90/32
+set snmp community eHealth authorization read-only
+set snmp community sshaprz authorization read-only
+set snmp community sshaprz clients 138.218.142.0/28
+set snmp trap-options source-address {{ key['loopback_ip'] }}
+
+set snmp trap-group majoralarms categories authentication
+set snmp trap-group majoralarms categories chassis
+set snmp trap-group majoralarms categories link
+set snmp trap-group majoralarms categories routing
+set snmp trap-group majoralarms categories startup
+set snmp trap-group majoralarms categories chassis-cluster
+set snmp trap-group majoralarms targets 192.75.109.40
+set snmp trap-group majoralarms targets 192.75.110.40
+set snmp health-monitor interval 60
+set snmp health-monitor rising-threshold 70
+set snmp health-monitor falling-threshold 60
+
+set policy-options policy-statement BGP-IN-Pri term default from protocol bgp
+set policy-options policy-statement BGP-IN-Pri term default from protocol direct
+set policy-options policy-statement BGP-IN-Pri term default from protocol static
+set policy-options policy-statement BGP-IN-Pri term default then community add set-LP-120
+set policy-options policy-statement BGP-OUT-Pri term default from protocol bgp
+set policy-options policy-statement BGP-OUT-Pri term default from protocol direct
+set policy-options policy-statement BGP-OUT-Pri term default from protocol static
+set policy-options policy-statement BGP-OUT-Pri term default then local-preference 120
+
+set policy-options policy-statement MGMT-OUT-Pri term default from protocol bgp
+set policy-options policy-statement MGMT-OUT-Pri term default from route-filter 192.75.109.0/24 orlonger
+set policy-options policy-statement MGMT-OUT-Pri term default from route-filter 192.75.110.0/24 orlonger
+set policy-options policy-statement MGMT-OUT-Pri term default from route-filter 138.218.142.0/24 orlonger
+set policy-options policy-statement MGMT-OUT-Pri term default from route-filter 138.218.140.0/29 orlonger
+set policy-options policy-statement MGMT-OUT-Pri term default from route-filter 138.218.148.0/29 orlonger
+set policy-options policy-statement MGMT-OUT-Pri term default from route-filter 142.10.109.160/27 orlonger
+set policy-options policy-statement MGMT-OUT-Pri term default then local-preference 120
+
+set policy-options policy-statement global-connected-bgp-pri term 2 from tag 5
+set policy-options policy-statement global-connected-bgp-pri term 2 then reject
+set policy-options policy-statement global-connected-bgp-pri term 1 from protocol direct
+set policy-options policy-statement global-connected-bgp-pri term 1 then community add set-LP-120
+set policy-options policy-statement global-connected-bgp-pri term 1 then accept
+set policy-options policy-statement sla-probe term Probe then accept
+set policy-options community set-LP-110 members 21992:110
+set policy-options community set-LP-120 members 21992:120
+
+set firewall family inet filter PROTECT-RE term accept-itmc-only from source-address 192.75.109.0/24
+set firewall family inet filter PROTECT-RE term accept-itmc-only from source-address 192.75.110.0/24
+set firewall family inet filter PROTECT-RE term accept-itmc-only from source-address 138.218.0.0/16
+set firewall family inet filter PROTECT-RE term accept-itmc-only from protocol tcp
+set firewall family inet filter PROTECT-RE term accept-itmc-only from port ssh
+set firewall family inet filter PROTECT-RE term accept-itmc-only then accept
+set firewall family inet filter PROTECT-RE term allow-outbound from tcp-established
+set firewall family inet filter PROTECT-RE term allow-outbound then accept
+set firewall family inet filter PROTECT-RE term Reject from protocol tcp
+set firewall family inet filter PROTECT-RE term Reject from port telnet
+set firewall family inet filter PROTECT-RE term Reject from port ssh
+set firewall family inet filter PROTECT-RE term Reject from port ftp
+set firewall family inet filter PROTECT-RE term Reject then log
+set firewall family inet filter PROTECT-RE term Reject then reject
+set firewall family inet filter PROTECT-RE term allow-ntp from source-address 192.75.109.40/32
+set firewall family inet filter PROTECT-RE term allow-ntp from source-address 192.75.110.40/32
+set firewall family inet filter PROTECT-RE term allow-ntp from source-address {{ key['loopback_ip'] }}/32
+set firewall family inet filter PROTECT-RE term allow-ntp from source-address 127.0.0.1/32
+set firewall family inet filter PROTECT-RE term allow-ntp from protocol udp
+set firewall family inet filter PROTECT-RE term allow-ntp from port ntp
+set firewall family inet filter PROTECT-RE term allow-ntp then accept
+set firewall family inet filter PROTECT-RE term block-ntp from protocol udp
+set firewall family inet filter PROTECT-RE term block-ntp from port ntp
+set firewall family inet filter PROTECT-RE term block-ntp then discard
+set firewall family inet filter PROTECT-RE term default then accept
+
+set interfaces reth0 unit {{ key['nms_vlan'] }} description NMS-{{ key['cpe_router'] }}
+set interfaces reth0 unit {{ key['nms_vlan'] }} vlan-id {{ key['nms_vlan'] }}
+set interfaces reth0 unit {{ key['nms_vlan'] }} family inet address {{ key['nms_cpe_ip'] }}/{{ key['nms_cidr'] }}
+
+set security zones security-zone mgmt host-inbound-traffic system-services all
+set security zones security-zone mgmt host-inbound-traffic protocols all
+set security zones security-zone mgmt interfaces lo0.1
+set security zones security-zone mgmt interfaces reth0.{{ key['nms_vlan'] }} host-inbound-traffic system-services all
+
+set protocols bgp precision-timers
+set protocols bgp local-as 64900
+set protocols bgp log-updown
+set protocols bgp group mgmt-bgp neighbor {{ key['nms_pe_ip'] }} multihop ttl 2
+set protocols bgp group mgmt-bgp neighbor {{ key['nms_pe_ip'] }} local-address {{ key['nms_cpe_ip'] }}
+set protocols bgp group mgmt-bgp neighbor {{ key['nms_pe_ip'] }} import MGMT-OUT-Pri
+set protocols bgp group mgmt-bgp neighbor {{ key['nms_pe_ip'] }} authentication-key {{ key['msu_id'] }}
+set protocols bgp group mgmt-bgp neighbor {{ key['nms_pe_ip'] }} export global-connected-bgp-pri
+set protocols bgp group mgmt-bgp neighbor {{ key['nms_pe_ip'] }} peer-as 21992
+
+set firewall policer POLICE-{{ key['bw_minus_one'] }}MB if-exceeding bandwidth-limit {{ key['bw_minus_one'] }}m
+set firewall policer POLICE-{{ key['bw_minus_one'] }}MB if-exceeding burst-size-limit 100k
+set firewall policer POLICE-{{ key['bw_minus_one'] }}MB then discard
+
+set interfaces reth0 unit {{ key['vpn_vlan'] }} description VPN-{{ key['cpe_router'] }}
+set interfaces reth0 unit {{ key['vpn_vlan'] }} vlan-id {{ key['vpn_vlan'] }}
+set interfaces reth0 unit {{ key['vpn_vlan'] }} family inet policer input POLICE-{{ key['bw_minus_one'] }}MB
+set interfaces reth0 unit {{ key['vpn_vlan'] }} family inet address {{ key['vpn_cpe_ip'] }}/{{ key['vpn_cidr'] }}
+
+set class-of-service classifiers dscp DSCP-DEFAULT import default
+set class-of-service interfaces reth0 unit {{ key['vpn_vlan'] }} scheduler-map UPLINK-QoS
+set class-of-service interfaces reth0 unit {{ key['vpn_vlan'] }} shaping-rate {{ key['bw_minus_one'] }}m
+set class-of-service interfaces reth0 unit {{ key['vpn_vlan'] }} classifiers dscp DSCP-DEFAULT
+
+set security zones security-zone untrust screen untrust-screen
+set security zones security-zone untrust interfaces reth0.{{ key['vpn_vlan'] }} host-inbound-traffic system-services all
+set security zones security-zone untrust interfaces reth0.{{ key['vpn_vlan'] }} host-inbound-traffic system-services ike
+set security zones security-zone untrust interfaces reth0.{{ key['vpn_vlan'] }} host-inbound-traffic system-services ping
+
+set security ike gateway {{ key['vpn_conc'] }}-RETH0-{{ key['vpn_vlan'] }}-GW-PRI ike-policy HOT-GW-ENCRYPT
+set security ike gateway {{ key['vpn_conc'] }}-RETH0-{{ key['vpn_vlan'] }}-GW-PRI address {{ key['vpn_vpn_ip'] }}
+set security ike gateway {{ key['vpn_conc'] }}-RETH0-{{ key['vpn_vlan'] }}-GW-PRI external-interface reth0.{{ key['vpn_vlan'] }}
+
+set security ike proposal HOT-KEY-PROPOSAL authentication-method pre-shared-keys
+set security ike proposal HOT-KEY-PROPOSAL dh-group group2
+set security ike proposal HOT-KEY-PROPOSAL authentication-algorithm sha1
+set security ike proposal HOT-KEY-PROPOSAL encryption-algorithm aes-128-cbc
+set security ike proposal HOT-KEY-PROPOSAL lifetime-seconds 86400
+set security ike policy HOT-GW-ENCRYPT mode main
+set security ike policy HOT-GW-ENCRYPT proposals HOT-KEY-PROPOSAL
+set security ike policy HOT-GW-ENCRYPT pre-shared-key ascii-text {{ key['msu_id'] }}
+
+set security ipsec proposal HOT-TRAFFIC-CLEAR protocol esp
+set security ipsec proposal HOT-TRAFFIC-CLEAR authentication-algorithm hmac-md5-96
+set security ipsec proposal HOT-TRAFFIC-CLEAR lifetime-seconds 86400
+set security ipsec proposal HOT-TRAFFIC-ENCRYPT protocol esp
+set security ipsec proposal HOT-TRAFFIC-ENCRYPT authentication-algorithm hmac-sha1-96
+set security ipsec proposal HOT-TRAFFIC-ENCRYPT encryption-algorithm aes-128-cbc
+set security ipsec proposal HOT-TRAFFIC-ENCRYPT lifetime-seconds 86400
+set security ipsec policy POLICY-TRAFFIC-CLEAR proposals HOT-TRAFFIC-CLEAR
+set security ipsec policy POLICY-TRAFFIC-ENCRYPT perfect-forward-secrecy keys group2
+set security ipsec policy POLICY-TRAFFIC-ENCRYPT proposals HOT-TRAFFIC-ENCRYPT
+
+{% for item in key['cpe_service_configs'] -%}
+{{ item }}
+{% endfor %}
