@@ -44,7 +44,7 @@ session = Session(engine)
 
 
 # If site id is in the format of ###.6##, change the 6 to a 7
-def backup_site(site):
+def get_backup_site(site):
     try:
         split = site.split('.')
         backup = split[1].replace('6','.7')
@@ -268,8 +268,7 @@ def create_key_list(form, pe_router, site_type=None):
         # Reset service_keys at start of every loop
         service_keys = {}  # Keys will be appended to service_keys in sections for readability and ease of updating
         suffix = '' if counter == 1 else counter  # First service HTML elements are not suffixed with an increment
-        
-        # Assigned outside of service_keys because cpe_port will be used to get ST tunnel ID as well
+
         cpe_port = d['servicePort{}{}'.format(site, suffix)].lower()
         # All references to query below except for IP SLA will be the query of pe_sites table row matching PE router
         service_query = session.query(VpnServices).filter(VpnServices.service_name == d['serviceType{}{}'.format(site, suffix)]).first()
@@ -293,7 +292,7 @@ def create_key_list(form, pe_router, site_type=None):
             'route_target': service_query.route_target,
             'srx_exchange': service_query.srx_exchange,
             'vlan': d['serviceVlan{}{}'.format(site, suffix)],
-            'tunnel_id': cpe_port.replace('ge-0/0/', ''),
+            'tunnel_id': cpe_port[7:],  # Remove first 7 characters from cpe port to get tunnel ID
             'pe_logical_port': pe_query.pe_logical_port,
             'clci': d['serviceCLCI{}{}'.format(site, suffix)]
         })
@@ -318,7 +317,6 @@ def create_key_list(form, pe_router, site_type=None):
         })
 
         # Section - IP SLA keys
-        # New query for IP SLA name of service
         ipsla_query = session.query(VpnServices).filter(VpnServices.service_name == d['serviceType{}{}'.format(site, suffix)]).first()
         service_keys.update({
                 'ipsla_vrf': ipsla_query.ip_sla_vrf_name,
@@ -344,24 +342,33 @@ def generate_configs(form, p_pe_router, b_pe_router=None):
 
     text_area_configs = {}  # Will contain outputs of configs for printing to text area HTML elements on success page
     key_lists = {'primary': create_key_list(form=form, pe_router=p_pe_router)}
+
+    # Change list of templates according to site type
     if b_pe_router:
         key_lists.update({'backup': create_key_list(form=form, pe_router=b_pe_router, site_type='b')})
-        
-        template_list = {
-            cpe_template: '1 - CPE',
-            dual_cpe_template: '1 - Dual CPE',
-            switch_template: '2 - L2 Switch',
-            vpn_template: '3 - VPN',
-            pe_template: '4 - PE',
-            ipsla_template: '5 - IPSLA'
+
+        templates = {
+            '1 - CPE': cpe_template,
+            '2 - L2 Switch': switch_template,
+            '3 - VPN': vpn_template,
+            '4 - PE': pe_template,
+            '5 - IPSLA': ipsla_template,
+            '1 - Dual CPE (Backup)': dual_cpe_template,
+            '2 - L2 Switch (Backup)': switch_template,
+            '3 - VPN (Backup)': vpn_template,
+            '4 - PE (Backup)': pe_template
         }
+
+        # Condense IP SLA configs into 1 file
+        key_lists['primary']['primary_ipsla_configs'].append(key_lists['backup']['primary_ipsla_configs'][0])
+        key_lists['primary']['backup_ipsla_configs'].append(key_lists['backup']['backup_ipsla_configs'][0])
     else:
-        template_list = {
-            cpe_template: '1 - CPE',
-            switch_template: '2 - L2 Switch',
-            vpn_template: '3 - VPN',
-            pe_template: '4 - PE',
-            ipsla_template: '5 - IPSLA'
+        templates = {
+            '1 - CPE': cpe_template,
+            '2 - L2 Switch': switch_template,
+            '3 - VPN': vpn_template,
+            '4 - PE': pe_template,
+            '5 - IPSLA': ipsla_template,
         }
 
     site_id = form['siteID']
@@ -371,44 +378,42 @@ def generate_configs(form, p_pe_router, b_pe_router=None):
     zip_file = str(BASE_PATH / zip_name)
     ZipFile(zip_file, 'w')
 
-    for site, key_list in key_lists.items():
-        for template, config in template_list.items():
-            if site == 'primary':
-                file_name = '{id} - {config}.txt'.format(id=site_id, config=config)
-                textarea_key = config  # What the textarea elements will be referencing
-            elif site == 'backup':
-                file_name = '{id} - {config} (Backup).txt'.format(id=backup_site(site_id), config=config)
-                textarea_key = '{} Backup'.format(config)
+    for config, template in templates.items():
+        if '(Backup)' not in config:
+            key_list = key_lists['primary']
+            file_name = '{id} - {config}.txt'.format(id=site_id, config=config)
+        else:
+            key_list = key_lists['backup']
+            file_name = '{id} - {config}.txt'.format(id=get_backup_site(site_id), config=config)
 
-            # Make template replacements
-            results = render_from_template(
-                directory=str(TEMPLATES_PATH),
-                template_name=template,
-                key=key_list
-            )
+        results = render_from_template(
+            directory=str(TEMPLATES_PATH),
+            template_name=template,
+            key=key_list
+        )
 
-            # Create a new text file in the zip
-            with ZipFile(zip_file, 'a') as zf:
-                zf.writestr(file_name, results)
+        # Save the rendered template as plain string for printing to HTML textarea elements
+        text_area_configs.update({config: results})
 
-            # Also save the rendered template as plain string for printing to HTML textarea elements
-            text_area_configs.update({textarea_key: results})
+        # Write results into new text file
+        with ZipFile(zip_file, 'a') as zf:
+            zf.writestr(file_name, results)
 
-    # Update dictionary with header title and name of config zip
+    # Update dictionary with header title and file name of zip
     text_area_configs.update({'config_zip': zip_name})
 
     return text_area_configs
 
 
 if __name__ == '__main__':
-    form = {
+    test_form = {
         'siteBandwidth': '100', 
         'serviceBandwidthBackup': '49', 
         'uplinkPortSpeedBackup': '100', 
-        'siteID': '123.601', 
+        'siteID': '343.601',
         'vpnConcIPBackup': '0.0.0.0', 
         'serviceVlan': '100', 
-        'serviceIPSLABackup': '20069', 
+        'serviceIPSLABackup': '50069',
         'sTagVlanBackup': '', 
         'rethInterfaceBackup': 'reth20', 
         'serviceType': 'CCAC', 
@@ -421,12 +426,12 @@ if __name__ == '__main__':
         'msuIDBackup': 'MSUID123B', 
         'serviceVlanBackup': '400',
         'serviceCpeIP': '0.0.0.0', 
-        'servicePort': 'GE-0/0/8', 
+        'servicePort': 'GE-0/0/8',
         'servicePeIPBackup': '0.0.0.0', 
         'serviceHosts': '',
         'msuID': 'MSUID123A',
         'vendorInterface': 'TenGigabitEthernet', 
-        'servicePortBackup': 'GE-5/0/8', 
+        'servicePortBackup': 'GE-5/0/9',
         'lhinID': '11 - Champlain', 
         'serviceIPSLABackupBackup': '600069',
         'numServicesHidden': '1', 
@@ -445,8 +450,8 @@ if __name__ == '__main__':
         'rethInterface': 'reth0', 
         'serviceIPSLA': '10069', 
         'serviceBandwidth': '99',
-        'vpnConcVlan': '101'
-        , 'serviceTypeBackup': 'CCAC-VoIP', 
+        'vpnConcVlan': '101',
+        'serviceTypeBackup': 'CCAC-VoIP',
         'siteBandwidthBackup': '50', 
         'uplinkPortSpeed': '100',
         'serviceHostsBackup': '', 
@@ -458,5 +463,5 @@ if __name__ == '__main__':
     
     router = 'TOROONXNPED10'
     b_router = 'ebckoncbped10'
-    generate_configs(form, router, b_router)
+    generate_configs(test_form, router, b_router)
     pass

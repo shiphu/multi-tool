@@ -68,6 +68,7 @@ def equipment_template(equipment):
 @app.route('/config-generator/<srx>/<site>/<router>/<b_router>/<services>', methods=['GET', 'POST'])
 def new_srx_config(srx, site, router, services, b_router):
     dropdown_lists = cg.dropdown_lists(srx)
+
     if request.method == 'GET':
         srx_page = 'config_generator/{site}-{srx}.html'.format(site=site, srx=srx)
         return render_template(
@@ -91,14 +92,12 @@ def data_loader():
     dropdown_lists = dl.dropdown_lists()
 
     if request.method == 'GET':
-        return render_template('/dataloader/data-loader.html',
-                               dropdown_lists=dropdown_lists)
+        return render_template('/dataloader/data-loader.html', dropdown_lists=dropdown_lists)
     elif request.method == 'POST':
         form = request.form.to_dict()
         dl.zip_data_files(form)
         global DATA_ZIP_SERVED
-        DATA_ZIP_SERVED = '{site} Data Files - {date}.zip'.format(site=form['siteCLLI'],
-                                                                 date=str(date.today()))
+        DATA_ZIP_SERVED = '{site} Data Files - {date}.zip'.format(site=form['siteCLLI'], date=str(date.today()))
         return render_template('/dataloader/data-loader-success.html')
 
 
