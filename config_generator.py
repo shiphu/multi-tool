@@ -14,8 +14,10 @@ BASE_PATH = Path('served_files/config_generator')
 TEMPLATES_PATH = Path().resolve() / BASE_PATH / 'templates'
 
 # File names of templates in templates folder
-cpe_template = '1 - CPE.txt'
-cpe_service_template = '1 - CPE (Service).txt'
+cpe_template = '1 - Single CPE.txt'
+dual_cpe_template = '1 - Dual CPE.txt'
+cpe_service_template = '1 - Single CPE (Service).txt'
+dual_cpe_service_template = '1 - Dual CPE (Service).txt'
 switch_template = '2 - L2 Switch.txt'
 vpn_template = '3 - VPN.txt'
 vpn_service_template = '3 - VPN (Service).txt'
@@ -24,7 +26,6 @@ pe_service_template = '4 - PE (Service).txt'
 ipsla_template = '5 - IPSLA.txt'
 ipsla_primary_template = '5 - IPSLA (Primary).txt'
 ipsla_backup_template = '5 - IPSLA (Backup).txt'
-
 
 # Initial configuration of SQLAlchemy engine and connection
 Base = automap_base()
@@ -35,7 +36,8 @@ PeSites = Base.classes.pe_sites
 Lhin = Base.classes.lhin_sites
 VpnServices = Base.classes.vpn_services
 EquipList = Base.classes.equipment_list
-EquipPorts= Base.classes.equipment_ports
+PhysicalPorts= Base.classes.physical_ports
+RethPorts = Base.classes.reth_ports
 Cidr = Base.classes.subnet_masks
 Speeds = Base.classes.port_speeds
 
@@ -43,22 +45,22 @@ session = Session(engine)
 
 
 # If site id is in the format of ###.6##, change the 6 to a 7
-def backup_site(site):
+def get_backup_site(site):
     try:
         split = site.split('.')
         backup = split[1].replace('6','.7')
-        new_site = split[0] + backup
-        return new_site
+        backup_site_id = split[0] + backup
+        return backup_site_id
     except IndexError:
         return site
 
 
 # Strip all leading and trailing whitespaces from form values
-def strip_whitespace(d):
+def strip_whitespace(form):
     stripped_form = {}
     
     try:
-        for key, value in d.items():
+        for key, value in form.items():
             stripped = str(value.strip())
             stripped_form.update({key: stripped})
     except KeyError:
@@ -98,21 +100,16 @@ def dropdown_lists(device=None):
                  for i in session.query(Lhin)
                  ],
     })
-    counter = 0  # Counter for switching between primary and backup (0 for primary ports, 1 for backup)
 
     # Query related tables to retrieve the ports which match device type chosen
     # Assumes column names in equipment_ports table follows the format: (device_type)_(primary/backup)
     # e.g. srx345_primary
     if device:
-        primary = '{}_primary'.format(device)
-        backup = '{}_backup'.format(device)
-        ports = [primary, backup]
-        for port in ports:
-            if counter == 0:
-                lists.update({'primary_ports': [getattr(i, port) for i in session.query(EquipPorts)]})
-            else:
-                lists.update({'backup_ports': [getattr(i, port) for i in session.query(EquipPorts)]})
-            counter += 1
+        device_col = '{}_primary'.format(device)
+        lists.update({
+            'primary_physical_ports': [getattr(i, device_col) for i in session.query(PhysicalPorts)],
+            'primary_reth_ports': [getattr(i, device_col) for i in session.query(RethPorts)],
+        })
     
     return lists
 
@@ -137,23 +134,29 @@ def create_key_list(form, pe_router, site_type=None):
     """
     d = strip_whitespace(form)
     key_list = {}
-
-    pe_router = pe_router.upper()
-    site_id = d['siteID']
-    lhin_id = d['lhinID'][:2]  # Get the first 2 characters from LHIN dropdown (LHIN number)
-    site = 'Backup' if site_type == 'b' else ''  # Append site type suffix to HTML elements
-
+    
     # Database queries to be reused throughout function
-    pe_query = session.query(PeSites).filter(PeSites.pe_router == pe_router).first()
-    lhin_query = session.query(Lhin).filter(Lhin.lhin_id == int(lhin_id)).first()
+    pe_query = session.query(PeSites).filter(PeSites.pe_router == pe_router.upper()).first()
+    lhin_query = session.query(Lhin).filter(Lhin.lhin_id == int(d['lhinID'][:2])).first()
     equip_query = session.query(EquipList).filter(EquipList.equipment_name == d['deviceHidden'].upper()).first()
+    
+    if site_type == 'b':
+        site = 'Backup' 
+        uplink_port = equip_query.uplink_port_backup.lower()
+        p_node = '-node0'
+        p_prefix = '01-'
+    else:
+        site = ''
+        uplink_port = equip_query.uplink_port_primary.lower()
+        p_node = ''
+        p_prefix = ''
     
     # Section - Header keys
     key_list.update({
         'cpe_header': make_header(d['equipmentName']),
         'switch_header': make_header(pe_query.asr_name),
         'vpn_header': make_header(pe_query.srx3600_name),
-        'pe_header': make_header(pe_router),
+        'pe_header': make_header(pe_router.upper()),
         'p_ipsla_header': make_header(lhin_query.ip_sla_primary),
         'b_ipsla_header': make_header(lhin_query.ip_sla_backup)
     })
@@ -161,15 +164,17 @@ def create_key_list(form, pe_router, site_type=None):
     # Section - General site info keys
     key_list.update({
         'cpe_service_configs': [],
+        'dual_cpe_service_configs': [],
         'pe_service_configs': [],
         'pop_clli': pe_query.pop_clli,
         'logical_pe_port': pe_query.pe_logical_port,
         'cpe_router': d['equipmentName'],
+        'primary_node': p_node,
         'loopback_ip': d['loopbackIP'],
         'msu_id': d['msuID' + site],
-        'site_id': site_id,
+        'site_id': d['siteID'],
         'bw_minus_one': int(d['siteBandwidth' + site]) - 1,
-        'uplink_port': equip_query.uplink_port_primary.lower(),
+        'uplink_port': uplink_port,
         'uplink_port_speed': '{}M'.format(d['uplinkPortSpeed' + site]),
         'stag_vlan': d['sTagVlan' + site],
         'clfi': '0001-{bw}M-{site}-{cpe}'.format(
@@ -196,11 +201,12 @@ def create_key_list(form, pe_router, site_type=None):
 
     key_list.update({
         'nms_vlan': d['nmsVlan' + site],
+        'primary_prefix': p_prefix,
         'nms_pe_ip': ipaddress.ip_address(d['nmsIP' + site]),
         'nms_cpe_ip': ipaddress.ip_address(d['nmsIP' + site]) + 1,
         'nms_cidr': 31,
         'nms_trunk_config': nms_trunk_config,
-        'nms_path': 'NMS-{}'.format(d['equipmentName']),
+        'nms_path': 'NMS-{}{}'.format(p_prefix, d['equipmentName']),
         'nms_pe_port': pe_query.pe_nms_port,
         'asr_nms_port': '{port}.{vlan}'.format(
             port=pe_query.asr_nms_port,
@@ -258,15 +264,32 @@ def create_key_list(form, pe_router, site_type=None):
         'primary_ipsla_configs': ipsla_primary_template,
         'backup_ipsla_configs': ipsla_backup_template
     }
+    if site_type == 'b':
+        service_template_list.update({'dual_cpe_service_configs': dual_cpe_service_template})
+        device = '{}_backup'.format(d['deviceHidden'])
+        backup_ports = [getattr(i, device) for i in session.query(PhysicalPorts)]
+        
     for i in range(int(d['numServicesHidden'])):
         # Reset service_keys at start of every loop
         service_keys = {}  # Keys will be appended to service_keys in sections for readability and ease of updating
         suffix = '' if counter == 1 else counter  # First service HTML elements are not suffixed with an increment
-        
-        # Assigned outside of service_keys because cpe_port will be used to get ST tunnel ID as well
-        cpe_port = d['servicePort{}'.format(suffix)].lower()
+        if site_type == 'b':
+            p_clci =  d['serviceCLCI{}'.format(suffix)]  
+            clci = p_clci[:len(p_clci) - 2] + ':B'  # Replace the :P suffix in primary CLCI with :B
+            # Match the last 1 or 2 digits of primary port with its backup port equivalent
+            for port in backup_ports:
+                if port is not None:
+                    if d['servicePort{}'.format(suffix)][7:] == port[7:]:
+                        cpe_port = port.lower()
+                    else:
+                        # Default to removing last digits of primary port and append to first 7 digits of backup port
+                        cpe_port = (port[:7] + d['servicePort{}'.format(suffix)][7:]).lower()
+        else:
+            clci = d['serviceCLCI{}'.format(suffix)]
+            cpe_port = d['servicePort{}'.format(suffix)].lower()
+        print(cpe_port)
         # All references to query below except for IP SLA will be the query of pe_sites table row matching PE router
-        service_query = session.query(VpnServices).filter(VpnServices.service_name == d['serviceType{}{}'.format(site, suffix)]).first()
+        service_query = session.query(VpnServices).filter(VpnServices.service_name == d['serviceType{}'.format(suffix)]).first()
 
         # Section - Site info keys
         service_keys.update({
@@ -280,25 +303,25 @@ def create_key_list(form, pe_router, site_type=None):
 
         # Section - General service keys
         service_keys.update({
-            'service_type': d['serviceType{}{}'.format(site, suffix)],
+            'service_type': d['serviceType{}'.format(suffix)],
             'ipsec_abbrev': service_query.ipsec_abbreviation,
             'cpe_asn': service_query.cpe_asn,
             'vpn_asn': service_query.vpn_asn,
             'route_target': service_query.route_target,
             'srx_exchange': service_query.srx_exchange,
             'vlan': d['serviceVlan{}{}'.format(site, suffix)],
-            'tunnel_id': cpe_port.replace('ge-0/0/', ''),
+            'tunnel_id': cpe_port[7:],  # Remove first 7 characters from cpe port to get tunnel ID
             'pe_logical_port': pe_query.pe_logical_port,
-            'clci': d['serviceCLCI{}{}'.format(site, suffix)]
+            'clci': clci
         })
 
         # Section - CPE (User interface) keys
         service_keys.update({
             'cpe_router': key_list['cpe_router'],
             'cpe_port': cpe_port,
-            'cpe_port_speed': d['servicePortSpeed{}{}'.format(site, suffix)],
-            'cpe_ip': ipaddress.ip_address(d['serviceCpeIP{}{}'.format(site, suffix)]) + 1,
-            'cpe_cidr': d['serviceCpeCIDR{}{}'.format(site, suffix)],
+            'cpe_port_speed': d['servicePortSpeed{}'.format(suffix)],
+            'cpe_ip': ipaddress.ip_address(d['serviceCpeIP{}'.format(suffix)]) + 1,
+            'cpe_cidr': d['serviceCpeCIDR{}'.format(suffix)],
         })
 
         # Section - PE (PE - VPN interface) keys
@@ -312,13 +335,12 @@ def create_key_list(form, pe_router, site_type=None):
         })
 
         # Section - IP SLA keys
-        # New query for IP SLA name of service
-        ipsla_query = session.query(VpnServices).filter(VpnServices.service_name == d['serviceType{}{}'.format(site, suffix)]).first()
+        ipsla_query = session.query(VpnServices).filter(VpnServices.service_name == d['serviceType{}'.format(suffix)]).first()
         service_keys.update({
                 'ipsla_vrf': ipsla_query.ip_sla_vrf_name,
-                'primary_ipsla_entry': d['serviceIPSLA{}{}'.format(site, suffix)],
-                'backup_ipsla_entry': d['serviceIPSLABackup{}{}'.format(site, suffix)]               
-            })
+                'primary_ipsla_entry': d['serviceIPSLA{}'.format(suffix)],
+                'backup_ipsla_entry': d['serviceIPSLABackup{}'.format(suffix)]               
+        })
         
         # Append results of rendered service templates into their respective config keys
         # Loop through all service configs and their templates
@@ -338,55 +360,126 @@ def generate_configs(form, p_pe_router, b_pe_router=None):
 
     text_area_configs = {}  # Will contain outputs of configs for printing to text area HTML elements on success page
     key_lists = {'primary': create_key_list(form=form, pe_router=p_pe_router)}
+
+    # Change list of templates according to site type
     if b_pe_router:
         key_lists.update({'backup': create_key_list(form=form, pe_router=b_pe_router, site_type='b')})
 
-    site_id = form['siteID']
+        templates = {
+            '1 - CPE': cpe_template,
+            '2 - L2 Switch': switch_template,
+            '3 - VPN': vpn_template,
+            '4 - PE': pe_template,
+            '5 - IPSLA': ipsla_template,
+            '1 - Dual CPE (Backup)': dual_cpe_template,
+            '2 - L2 Switch (Backup)': switch_template,
+            '3 - VPN (Backup)': vpn_template,
+            '4 - PE (Backup)': pe_template
+        }
 
-    # Key value pairs of template and their config file names (for looping)
-    template_list = {
-        cpe_template: '1 - CPE',
-        switch_template: '2 - L2 Switch',
-        vpn_template: '3 - VPN',
-        pe_template: '4 - PE',
-        ipsla_template: '5 - IPSLA'
-    }
+        # Condense IP SLA configs into 1 file
+        key_lists['primary']['primary_ipsla_configs'].append(key_lists['backup']['primary_ipsla_configs'][0])
+        key_lists['primary']['backup_ipsla_configs'].append(key_lists['backup']['backup_ipsla_configs'][0])
+    else:
+        templates = {
+            '1 - CPE': cpe_template,
+            '2 - L2 Switch': switch_template,
+            '3 - VPN': vpn_template,
+            '4 - PE': pe_template,
+            '5 - IPSLA': ipsla_template,
+        }
+
+    site_id = form['siteID']
     
     # Create new config zip in zip_archive
     zip_name = 'Site {id} Configs - {date}.zip'.format(id=site_id, date=str(date.today()))
     zip_file = str(BASE_PATH / zip_name)
     ZipFile(zip_file, 'w')
 
-    for site, key_list in key_lists.items():
-        for template, config in template_list.items():
-            if site == 'primary':
-                file_name = '{id} - {config}.txt'.format(id=site_id, config=config)
-                textarea_key = config  # What the textarea elements will be referencing
-            elif site == 'backup':
-                file_name = '{id} - {config} (Backup).txt'.format(id=backup_site(site_id), config=config)
-                textarea_key = '{} Backup'.format(config)
+    for config, template in templates.items():
+        if '(Backup)' not in config:
+            key_list = key_lists['primary']
+            file_name = '{id} - {config}.txt'.format(id=site_id, config=config)
+        else:
+            key_list = key_lists['backup']
+            file_name = '{id} - {config}.txt'.format(id=get_backup_site(site_id), config=config)
 
-            # Make template replacements
-            results = render_from_template(
-                directory=str(TEMPLATES_PATH),
-                template_name=template,
-                key=key_list
-            )
+        results = render_from_template(
+            directory=str(TEMPLATES_PATH),
+            template_name=template,
+            key=key_list
+        )
 
-            # Create a new text file in the zip
-            with ZipFile(zip_file, 'a') as zf:
-                zf.writestr(file_name, results)
+        # Save the rendered template as plain string for printing to HTML textarea elements
+        text_area_configs.update({config: results})
 
-            # Also save the rendered template as plain string for printing to HTML textarea elements
-            text_area_configs.update({textarea_key: results})
+        # Write results into new text file
+        with ZipFile(zip_file, 'a') as zf:
+            zf.writestr(file_name, results)
 
-    # Update dictionary with header title and name of config zip
-    text_area_configs.update({
-        'config_zip': zip_name
-    })
+    # Update dictionary with header title and file name of zip
+    text_area_configs.update({'config_zip': zip_name})
 
     return text_area_configs
 
 
 if __name__ == '__main__':
+    test_form = {
+        'siteBandwidth': '100', 
+        'serviceBandwidthBackup': '49', 
+        'uplinkPortSpeedBackup': '100', 
+        'siteID': '343.601',
+        'vpnConcIPBackup': '0.0.0.0', 
+        'serviceVlan': '100', 
+        'serviceIPSLABackup': '50069',
+        'sTagVlanBackup': '', 
+        'rethInterfaceBackup': 'reth20', 
+        'serviceType': 'CCAC', 
+        'nmsVlan': '100', 
+        'vpnConcVlanBackup': '201', 
+        'vendorPort': '0/0/0/0', 
+        'serviceCLCIBackup': 'clci2', 
+        'serviceCpeCIDR': '30', 
+        'serviceCpeCIDRBackup': '30', 
+        'msuIDBackup': 'MSUID123B', 
+        'serviceVlanBackup': '400',
+        'serviceCpeIP': '0.0.0.0', 
+        'servicePort': 'GE-0/0/8',
+        'servicePeIPBackup': '0.0.0.0', 
+        'serviceHosts': '',
+        'msuID': 'MSUID123A',
+        'vendorInterface': 'TenGigabitEthernet', 
+        'servicePortBackup': 'GE-5/0/9',
+        'lhinID': '11 - Champlain', 
+        'serviceIPSLABackupBackup': '600069',
+        'numServicesHidden': '1', 
+        'servicePeIP': '0.0.0.0', 
+        'vendorPortBackup': '1/1/1/1', 
+        'nmsIPBackup': '0.0.0.0', 
+        'sTagVlan': '1515', 
+        'deviceHidden': 'srx345', 
+        'serviceCLCI': '02-LMXK-002051-HYR-000:P', 
+        'servicePortSpeed': '100', 
+        'siteTypeHidden': 'dual', 
+        'nmsVlanBackup': '200', 
+        'serviceCpeIPBackup': '0.0.0.0',
+        'servicePortSpeedBackup': '100',
+        'nmsIP': '0.0.0.0', 
+        'rethInterface': 'reth0', 
+        'serviceIPSLA': '10069', 
+        'serviceBandwidth': '99',
+        'vpnConcVlan': '101',
+        'serviceTypeBackup': 'CCAC-VoIP',
+        'siteBandwidthBackup': '50', 
+        'uplinkPortSpeed': '100',
+        'serviceHostsBackup': '', 
+        'loopbackIP': '127.0.0.1',
+        'vendorInterfaceBackup': 'GigabitEthernet',
+        'vpnConcIP': '0.0.0.0', 
+        'equipmentName': 'CLEI'  
+    }
+    
+    router = 'TOROONXNPED10'
+    b_router = 'ebckoncbped10'
+    x = create_key_list(test_form, router)
     pass

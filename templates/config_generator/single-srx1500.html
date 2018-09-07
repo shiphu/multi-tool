@@ -101,11 +101,7 @@
 
                                     <select class="form-control" id="rethInterface" name="rethInterface" required>
                                         <option selected disabled value=""></option>
-                                        {% for item in dropdown_lists['primary_reth_ports'] %}
-                                            {% if item != none %}
-                                                <option value='{{ item }}'>{{ item }}</option>
-                                            {% endif %}
-                                        {% endfor %}
+                                        <option>reth0</option>
                                     </select>
                                 </div>
                             </div>
@@ -294,7 +290,7 @@
                                         <div class="col-3">
                                             <select class="form-control portSelect" id="servicePort" name="servicePort" required>
                                                 <option selected value=""></option>
-                                                {% for item in dropdown_lists['primary_physical_ports'] %}
+                                                {% for item in dropdown_lists['primary_ports'] %}
                                                     {% if item != none %}
                                                         <option value='{{ item }}'>{{ item }}</option>
                                                     {% endif %}

@@ -315,15 +315,15 @@ def create_r3_data_file(d):
         })
         # Assign first IP (network address) of sub range to port 1
         port_rows['ter_server1'].get_ip(
-            network_addr=d['terServerIP'],
-            cidr=d['terServerCIDR'],
+            network_addr=d['terServerIP1'],
+            cidr=d['terServerCIDR1'],
             place=0
         )
         # Assign last IP (broadcast address) of sub range to port 2
         port_rows['ter_server2'].get_ip(
-            network_addr=d['terServerIP'],
-            cidr=d['terServerCIDR'],
-            place=4
+            network_addr=d['terServerIP2'],
+            cidr=d['terServerCIDR2'],
+            place=0
         )
 
     # Print equipment to shelf sheet
@@ -687,9 +687,15 @@ def create_r3_data_file(d):
 
             # Terminal Server Subnet
             Subnet(
-                network_addr=d['terServerIP'],
-                cidr=d['terServerCIDR'],
-                notes='Terminal Server'
+                network_addr=d['terServerIP1'],
+                cidr=d['terServerCIDR1'],
+                notes='Terminal Server Port 1'
+            ),
+                    
+            Subnet(
+                network_addr=d['terServerIP2'],
+                cidr=d['terServerCIDR2'],
+                notes='Terminal Server Port 2'
             )
         ])
 
@@ -794,7 +800,11 @@ def create_r1_data_file(d):
     asr_paths = ['facility_path', 'nms_path']
     
     query = session.query(PeSite).filter(PeSite.shelf_clei == d['peRouter1']).first()
-    asr9k = session.query(Asr9k).filter(Asr9k.shelf_clli == query.pop_clli).first()
+    if d['peRouter1'] == 'TOROONXNPED10' or d['peRouter1'] == 'TOROONXNPED11':
+        clli = 'TOROONXND27'
+    else:
+        clli = query.pop_clli
+    asr9k = session.query(Asr9k).filter(Asr9k.shelf_clli == clli).first()
 
     for port in asr_ports:
         if port == 'nms_port':
@@ -849,7 +859,7 @@ def create_r1_data_file(d):
     # Backup
     if d['siteType'] == 'dual':
         query = session.query(PeSite).filter(PeSite.shelf_clei == d['peRouter2']).first()
-        if d['peRouter2'] == 'TOROONXNPED10' or query.pop_clli == 'TOROONXNPED11':
+        if d['peRouter2'] == 'TOROONXNPED10' or d['peRouter2'] == 'TOROONXNPED11':
             clli = 'TOROONXND27'
         else:
             clli = query.pop_clli

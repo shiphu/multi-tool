@@ -3,6 +3,8 @@ from pathlib import Path
 import dataloader as dl
 from datetime import date
 import config_generator as cg
+import time
+import os
 
 # Global Variables
 DATABASE = 'database/database.sqlite'
@@ -17,6 +19,13 @@ CONFIG_FILE = ''
 app = Flask(__name__)
 app.config['DEBUG'] = True
 
+@app.route('/')
+def home():
+    tools = ['config_generator.py', 'dataloader.py']
+    tools_modified = {}
+    for tool in tools:
+        tools_modified.update({tool: time.strftime("%m/%d/%Y",time.localtime(os.path.getmtime(tool)))})
+    return render_template('index.html', tools_modified=tools_modified)
 
 @app.route('/ehealth')
 def ehealth():
@@ -26,6 +35,11 @@ def ehealth():
 @app.route('/coin')
 def coin():
     return render_template('coin.html')
+
+
+@app.route('/test')
+def test():
+    return render_template('config_generator/config-generator-success-tabs.html')
 
 
 @app.route('/config-generator')
@@ -68,6 +82,7 @@ def equipment_template(equipment):
 @app.route('/config-generator/<srx>/<site>/<router>/<b_router>/<services>', methods=['GET', 'POST'])
 def new_srx_config(srx, site, router, services, b_router):
     dropdown_lists = cg.dropdown_lists(srx)
+
     if request.method == 'GET':
         srx_page = 'config_generator/{site}-{srx}.html'.format(site=site, srx=srx)
         return render_template(
@@ -91,20 +106,13 @@ def data_loader():
     dropdown_lists = dl.dropdown_lists()
 
     if request.method == 'GET':
-        return render_template('/dataloader/data-loader.html',
-                               dropdown_lists=dropdown_lists)
+        return render_template('/dataloader/data-loader.html', dropdown_lists=dropdown_lists)
     elif request.method == 'POST':
         form = request.form.to_dict()
         dl.zip_data_files(form)
         global DATA_ZIP_SERVED
-        DATA_ZIP_SERVED = '{site} Data Files - {date}.zip'.format(site=form['siteCLLI'],
-                                                                 date=str(date.today()))
+        DATA_ZIP_SERVED = '{site} Data Files - {date}.zip'.format(site=form['siteCLLI'], date=str(date.today()))
         return render_template('/dataloader/data-loader-success.html')
-
-
-@app.route('/')
-def home():
-    return render_template('index.html')
 
 
 @app.route('/download-file/<file_type>')

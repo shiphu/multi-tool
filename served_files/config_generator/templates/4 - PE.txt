@@ -2,7 +2,7 @@
 
 interface {{ key['nms_pe_port'] }}
  service instance {{ key['nms_vlan'] }} ethernet
-  description NMS-{{ key['cpe_router'] }}
+  description {{ key['nms_path'] }}
   encapsulation dot1q {{ key['nms_vlan'] }}
   rewrite ingress tag pop 1 symmetric
   exit
@@ -13,7 +13,7 @@ bridge-domain {{ key['nms_vlan'] }}
 !
 
 interface {{ key['logical_pe_port'] }}{{ key['nms_vlan'] }}
- description NMS-{{ key['cpe_router'] }}
+ description {{ key['nms_path'] }}
  ip vrf forwarding CPE-MGMT
  ip address {{ key['nms_pe_ip'] }} 255.255.255.254
  no ip redirects

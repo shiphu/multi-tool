@@ -193,11 +193,11 @@ a.icon:hover {
     color: white;
 }
 
-#configTextArea .card-header, #configTextArea textarea, #configTextAreaBackup .card-header, #configTextAreaBackup textarea {
+/*#configTextArea .card-header, #configTextArea textarea, #configTextAreaBackup .card-header, #configTextAreaBackup textarea {
     width: 85%;
     margin-left: auto;
     margin-right: auto;
-}
+}*/
 
 .portSelect :disabled {
     color: #D0D0D0;

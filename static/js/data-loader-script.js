@@ -4,30 +4,17 @@ let numServices = document.getElementById('numServices');
 let wrapper = document.getElementById('wrapper');
 
 function displayForm() {
-    let backupRouterRow = document.getElementById('backupRouterRow');
-    // Declare all backup rows for easy access to hide/display elements
-    let backupBandwidthRow = document.getElementById('backupBandwidthRow');
-    let primaryManagementHeader = document.getElementById('primaryManagementHeader');
-    let backupManagementHeader = document.getElementById('backupManagementHeader');
-    let backupManagementRow = document.getElementById('backupManagementRow');
-    let terServerRow = document.getElementById('terServerRow');
-    let primaryVpnHeader = document.getElementById('primaryVpnHeader');
-    let backupVpnHeader = document.getElementById('backupVpnHeader');
-    let vpnBodyBackup = document.getElementById('vpnBodyBackup');
-
-    let backupList = [backupBandwidthRow, primaryManagementHeader, backupManagementHeader,
-                      backupManagementRow, terServerRow, primaryVpnHeader,
-                      backupVpnHeader, vpnBodyBackup];
+    let backupList = ['backupBandwidthCol', 'backupRouterCol', 'primaryManagementHeader', 'backupManagement', 'backupTerServer', 'primaryVpnHeader', 'backupVpnHeader', 'vpnBodyBackup'];
 
     if (validateDisplayForm()) {
         if (siteType.value === 'single') {
             for (i=0; i<backupList.length; i++) {
-                backupList[i].style.display = "none";
+                document.getElementById(backupList[i]).style.display = "none";
             }
         }
         else if (siteType.value === 'dual') {
             for (i=0; i<backupList.length; i++) {
-                backupList[i].style.display = "block";
+                document.getElementById(backupList[i]).style.display = "block";
             }
             vpnBodyBackup.style.display = "block";
         }
@@ -116,6 +103,14 @@ function createVpnServices(num) {
             backupServiceWrapper.appendChild(clone)
         }
     }
+    $(function () {
+        $("select.portSelect").change(function () {
+            $("select.portSelect option[value='" + $(this).data('index') + "']").prop('disabled', false); // reset others on change everytime
+            $(this).data('index', this.value);
+            $("select.portSelect option[value='" + this.value + "']:not([value=''])").prop('disabled', true);
+            $(this).find("option[value='" + this.value + "']:not([value=''])").prop('disabled', false); // Do not apply the logic to the current one
+        });
+    });
 }
 
 function validateIP(ipAddress){
@@ -159,11 +154,27 @@ function incrementServiceVlan(field, num){
 function toggleValidateIP(){
     if (validateIP(this.value)){
         this.setAttribute('style', 'background-color: white')
+        // Assuming all PE IP's are /30, subtract 1 from last octet of IP if the octet isn't divisible by 2
+        if (this.name.includes('servicePeIP') || this.name.includes('serviceCpeIP')) {
+            toNetworkIP(this)
+        }
     } else {
         this.setAttribute('style', 'background-color: #ffcccc')
     }
 }
 
+function toNetworkIP(ip) {
+    let octets = ip.value.split('.')
+    if (octets.length === 4) {
+        let lastOctet = parseInt(octets[3]);
+        if (lastOctet % 2 !== 0) {
+            lastOctet -= 1
+            octets.splice(3);
+            octets.push(lastOctet);
+            ip.value = octets.join('.')
+        }
+    }
+}
 
 document.getElementById('showForm').addEventListener('click', displayForm);
 document.getElementById('cpeLoopback').addEventListener('change', toggleValidateIP);
@@ -174,5 +185,5 @@ document.getElementById('nmsVlan').addEventListener('change', function(){ increm
 document.getElementById('nmsVlanBackup').addEventListener('change', function(){ incrementManagementVlan('nmsVlanBackup', 'facilityVlanBackup') });
 document.getElementById('serviceVlan').addEventListener('change', function(){ incrementServiceVlan('serviceVlan', numServices.value) });
 document.getElementById('serviceVlanBackup').addEventListener('change', function(){ incrementServiceVlan('serviceVlanBackup', numServices.value) });
-document.getElementById('resetButton').addEventListener('click', resetForm);
+
 
