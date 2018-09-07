@@ -101,11 +101,7 @@
 
                                         <select class="form-control" id="rethInterface" name="rethInterface" required>
                                             <option selected disabled value=""></option>
-                                            {% for item in dropdown_lists['primary_reth_ports'] %}
-                                                {% if item != none %}
-                                                    <option value='{{ item }}'>{{ item }}</option>
-                                                {% endif %}
-                                            {% endfor %}
+                                            <option>reth0</option>
                                         </select>
                                     </div>
                                 </div>
@@ -233,7 +229,7 @@
                                         <div class="form-row">
                                             <label class="col-3 col-form-label" for="serviceType">Service Type</label>
                                             <div class="col-6">
-                                                <select class="form-control" id="serviceType" name="serviceType" onchange="fillBackupServiceType.call(this)" required>
+                                                <select class="form-control" id="serviceType" name="serviceType" required>
                                                     <option selected disabled value=""></option>
                                                     {% for item in dropdown_lists['services'] %}
                                                         <option>{{ item }}</option>
@@ -294,7 +290,7 @@
                                             <div class="col-4">
                                                 <select class="form-control portSelect" id="servicePort" name="servicePort" required>
                                                     <option selected value=""></option>
-                                                    {% for item in dropdown_lists['primary_physical_ports'] %}
+                                                    {% for item in dropdown_lists['primary_ports'] %}
                                                         {% if item != none %}
                                                             <option value='{{ item }}'>{{ item }}</option>
                                                         {% endif %}
@@ -528,20 +524,6 @@
                                         <div class="form-row">
                                             <label class="col-3 col-form-label" for="serviceTypeBackup">Service Type</label>
                                             <div class="col-6">
-                                                <input type="text" class="form-control" id="serviceTypeBackup" name="serviceTypeBackup" disabled>
-                                            </div>
-                                            <a class="col-2 col-form-label" href="javascript:void(0);">
-                                                <i class="far fa-question-circle"
-                                                data-toggle="tooltip"
-                                                data-placement="top"
-                                                title="Select a service type from the corresponding primary service.">
-                                                </i>
-                                            </a>
-                                        </div>
-
-<!--                                         <div class="form-row">
-                                            <label class="col-3 col-form-label" for="serviceTypeBackup">Service Type</label>
-                                            <div class="col-6">
                                                 <select class="form-control" id="serviceTypeBackup" name="serviceTypeBackup" required>
                                                     <option selected disabled value=""></option>
                                                     {% for item in dropdown_lists['services'] %}
@@ -549,7 +531,7 @@
                                                     {% endfor %}
                                                 </select>
                                             </div>
-                                        </div> -->
+                                        </div>
 
                                         <div class="form-row">
                                             <label class="col-3 col-form-label" for="servicePeIPBackup">PE Network Address</label>
@@ -565,14 +547,40 @@
                                             </a>
                                         </div>
 
-<!--                                         <div class="form-row">
+                                        <div class="form-row">
                                             <label class="col-3 col-form-label" for="serviceCLCIBackup">Circuit ID (CLCI)</label>
                                             <div class="col-6">
                                                 <input type="text" class="form-control" id="serviceCLCIBackup" name="serviceCLCIBackup" required>
                                             </div>
-                                        </div> -->
+                                        </div>
 
-<!--                                         <div class="form-row">
+                                        <div class="form-row">
+                                            <label class="col-3 col-form-label" for="serviceCpeIPBackup">CE Network Address</label>
+                                            <div class="col-6">
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control" id="serviceCpeIPBackup" name="serviceCpeIPBackup" onchange="toggleValidateIP.call(this)" required>
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text">/</span>
+                                                        <select class="form-control" id="serviceCpeCIDRBackup" name="serviceCpeCIDRBackup" required>
+                                                            {% for item in dropdown_lists['cidr'] %}
+                                                                {% if item != 31 %}
+                                                                    <option>{{ item }}</option>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <a class="col-2 col-form-label" href="javascript:void(0);">
+                                                <i class="far fa-question-circle"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Alternatively, paste in the port address (first available) and it will be converted to its network address.">
+                                                </i>
+                                            </a>
+                                        </div>
+
+                                        <div class="form-row">
                                             <label class="col-3 col-form-label" for="servicePortBackup">Port</label>
                                             <div class="col-4">
                                                 <select class="form-control portSelect" id="servicePortBackup" name="servicePortBackup" required>
@@ -601,9 +609,9 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div> -->
+                                        </div>
 
-<!--                                         <div class="form-row">
+                                        <div class="form-row">
                                             <label class="col-3 col-form-label" for="serviceIPSLABackup">IP SLA Entry</label>
                                             <div class="col-3">
                                                 <input type="number" class="form-control" id="serviceIPSLABackup" name="serviceIPSLABackup" onkeyup="incrementIPSLA.call(this)" required>
@@ -613,7 +621,21 @@
                                                 <input type="number" class="form-control" id="serviceIPSLABackupBackup" name="serviceIPSLABackupBackup" required>
                                                 <small class="text-muted">Backup</small>
                                             </div>
-                                        </div> -->
+                                        </div>
+
+                                        <div class="form-row">
+                                            <label class="col-3 col-form-label" for="serviceHostsBackup">Routed Hosts</label>
+                                            <div class="col-6">
+                                                <textarea rows="3" class="form-control" id="serviceHostsBackup" name="serviceHostsBackup" placeholder="Optional"></textarea>
+                                            </div>
+                                            <a class="col-2 col-form-label" href="javascript:void(0);">
+                                                <i class="far fa-question-circle"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Use comma delimited format for multiple hosts.">
+                                                </i>
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                                 <div id="vpnServiceWrapperBackup">

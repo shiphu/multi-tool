@@ -250,6 +250,15 @@ function fillServiceBandwidth() {
     }
 }
 
+
+function fillBackupServiceType() {
+    let suffix = this.name.slice(this.name.length - 1)
+    if (isNaN(suffix)) {
+        suffix = ''
+    }
+    document.getElementById('serviceTypeBackup' + suffix).value = this.value;
+}
+
 if (document.getElementById('numServicesHidden')) {
     document.addEventListener('DOMContentLoaded', displayForm);
     document.getElementById('submitButton').addEventListener('click', submitForm);

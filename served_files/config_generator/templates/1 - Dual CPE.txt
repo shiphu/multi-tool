@@ -1,0 +1,90 @@
+set groups node1 system host-name {{ key['cpe_router'] }}-node1
+
+set chassis cluster redundancy-group 2 interface-monitor {{ key['uplink_port'] }} weight 255
+
+set interfaces {{ key['uplink_port'] }} description {{ key['clfi'] }}
+set interfaces {{ key['uplink_port'] }} speed {{ key['uplink_port_speed'] }}
+set interfaces {{ key['uplink_port'] }} link-mode full-duplex
+set interfaces {{ key['uplink_port'] }} gigether-options no-auto-negotiation
+set interfaces {{ key['uplink_port'] }} gigether-options redundant-parent reth20
+
+set interfaces fab1 fabric-options member-interfaces ge-5/0/2
+set interfaces fab1 fabric-options member-interfaces ge-5/0/3
+
+set interfaces reth20 per-unit-scheduler
+set interfaces reth20 vlan-tagging
+set interfaces reth20 redundant-ether-options redundancy-group 2
+
+set policy-options policy-statement BGP-IN-Back term default from protocol bgp
+set policy-options policy-statement BGP-IN-Back term default from protocol direct
+set policy-options policy-statement BGP-IN-Back term default from protocol static
+set policy-options policy-statement BGP-IN-Back term default then community add set-LP-110
+set policy-options policy-statement BGP-OUT-Back term default from protocol bgp
+set policy-options policy-statement BGP-OUT-Back term default from protocol direct
+set policy-options policy-statement BGP-OUT-Back term default from protocol static
+set policy-options policy-statement BGP-OUT-Back term default then local-preference 110
+
+set policy-options policy-statement MGMT-OUT-Back term default from protocol bgp
+set policy-options policy-statement MGMT-OUT-Back term default from route-filter 192.75.109.0/24 orlonger
+set policy-options policy-statement MGMT-OUT-Back term default from route-filter 192.75.110.0/24 orlonger
+set policy-options policy-statement MGMT-OUT-Back term default from route-filter 138.218.142.0/24 orlonger
+set policy-options policy-statement MGMT-OUT-Back term default from route-filter 138.218.140.0/29 orlonger
+set policy-options policy-statement MGMT-OUT-Back term default from route-filter 138.218.148.0/29 orlonger
+set policy-options policy-statement MGMT-OUT-Back term default from route-filter 142.10.109.160/27 orlonger
+set policy-options policy-statement MGMT-OUT-Back term default then local-preference 110
+
+set policy-options policy-statement global-connected-bgp-back term 2 from tag 5
+set policy-options policy-statement global-connected-bgp-back term 2 then reject
+set policy-options policy-statement global-connected-bgp-back term 1 from protocol direct
+set policy-options policy-statement global-connected-bgp-back term 1 then community add set-LP-110
+set policy-options policy-statement global-connected-bgp-back term 1 then accept
+
+set policy-options community set-LP-110 members 21992:110
+
+set interfaces ge-5/0/7 description "TERM SERVER-{{ key['cpe_router'] }}-NET2"
+set interfaces ge-5/0/7 speed 100m
+set interfaces ge-5/0/7 link-mode full-duplex
+set interfaces ge-5/0/7 unit 0 family inet address 138.218.146.89/30
+
+set security zones security-zone mgmt interfaces {{ key['uplink_port'] }}.0
+
+set policy-options policy-statement global-connected-bgp-back term 1 from route-filter 138.218.146.88/30 exact
+set policy-options policy-statement global-connected-bgp-back term 1 from route-filter {{ key['loopback_ip'] }}
+
+set interfaces reth20 unit {{ key['nms_vlan'] }} description NMS-02-{{ key['cpe_router'] }}
+set interfaces reth20 unit {{ key['nms_vlan'] }} vlan-id {{ key['nms_vlan'] }}
+set interfaces reth20 unit {{ key['nms_vlan'] }} family inet address {{ key['nms_cpe_ip'] }}/{{ key['nms_cidr'] }}
+
+set security zones security-zone mgmt interfaces reth20.{{ key['nms_vlan'] }} host-inbound-traffic system-services all
+
+set protocols bgp group mgmt-bgp neighbor {{ key['nms_pe_ip'] }} multihop ttl 2
+set protocols bgp group mgmt-bgp neighbor {{ key['nms_pe_ip'] }} local-address {{ key['nms_cpe_ip'] }}
+set protocols bgp group mgmt-bgp neighbor {{ key['nms_pe_ip'] }} import MGMT-OUT-Back
+set protocols bgp group mgmt-bgp neighbor {{ key['nms_pe_ip'] }} authentication-key {{ key['msu_id'] }}
+set protocols bgp group mgmt-bgp neighbor {{ key['nms_pe_ip'] }} export global-connected-bgp-back
+set protocols bgp group mgmt-bgp neighbor {{ key['nms_pe_ip'] }} peer-as 21992
+
+set firewall policer POLICE-{{ key['bw_minus_one'] }}MB if-exceeding bandwidth-limit {{ key['bw_minus_one'] }}m
+set firewall policer POLICE-{{ key['bw_minus_one'] }}MB if-exceeding burst-size-limit 100k
+set firewall policer POLICE-{{ key['bw_minus_one'] }}MB then discard
+
+set interfaces reth20 unit {{ key['vpn_vlan'] }} description VPN-02-{{ key['cpe_router'] }}
+set interfaces reth20 unit {{ key['vpn_vlan'] }} vlan-id {{ key['vpn_vlan'] }}
+set interfaces reth20 unit {{ key['vpn_vlan'] }} family inet policer input POLICE-{{ key['bw_minus_one'] }}MB
+set interfaces reth20 unit {{ key['vpn_vlan'] }} family inet address {{ key['vpn_cpe_ip'] }}/{{ key['vpn_cidr'] }}
+
+set class-of-service interfaces reth20 unit {{ key['vpn_vlan'] }} scheduler-map UPLINK-QoS
+set class-of-service interfaces reth20 unit {{ key['vpn_vlan'] }} shaping-rate {{ key['bw_minus_one'] }}m
+set class-of-service interfaces reth20 unit {{ key['vpn_vlan'] }} classifiers dscp DSCP-DEFAULT
+
+set security zones security-zone untrust interfaces reth20.{{ key['vpn_vlan'] }} host-inbound-traffic system-services all
+set security zones security-zone untrust interfaces reth20.{{ key['vpn_vlan'] }} host-inbound-traffic system-services ike
+set security zones security-zone untrust interfaces reth20.{{ key['vpn_vlan'] }} host-inbound-traffic system-services ping
+
+set security ike gateway {{ key['vpn_conc'] }}-RETH20-{{ key['vpn_vlan'] }}-GW-BACK ike-policy HOT-GW-ENCRYPT
+set security ike gateway {{ key['vpn_conc'] }}-RETH20-{{ key['vpn_vlan'] }}-GW-BACK address {{ key['vpn_vpn_ip'] }}
+set security ike gateway {{ key['vpn_conc'] }}-RETH20-{{ key['vpn_vlan'] }}-GW-BACK external-interface reth20.{{ key['vpn_vlan'] }}
+
+{% for item in key['dual_cpe_service_configs'] -%}
+{{ item }}
+{% endfor %}

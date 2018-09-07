@@ -43,13 +43,13 @@
                         </div>
                     </div>
 
-                    <div class="form-row">
-                        <div class="col text-right">
+                    <div class="form-row justify-content-center">
+                        <div class="col-3">
                             <label for="siteType" class="lead">Site Type</label>
                         </div>
 
-                        <div class="col">
-                            <select class="form-control w-50" id="configType" name="siteType">
+                        <div class="col-4">
+                            <select class="form-control" id="configType" name="siteType">
                                 <option selected disabled>Select</option>
                                 <option value="single">Single CPE</option>
                                 <option value="dual">Dual CPE</option>
@@ -60,13 +60,13 @@
                         </div>
                     </div>
 
-                    <div class="form-row">
-                        <div class="col text-right">
+                    <div class="form-row justify-content-center">
+                        <div class="col-3">
                             <label for="modelName" class="lead">Router Model</label>
                         </div>
 
-                        <div class="col">
-                            <select class="form-control w-50" id="modelName" name="modelName">
+                        <div class="col-4">
+                            <select class="form-control" id="modelName" name="modelName">
                                 <option selected disabled>Select</option>
                                 {% for item in dropdown_lists['model_names'] %}
                                     <option>{{ item }}</option>
@@ -78,28 +78,28 @@
                         </div>
                     </div>
 
-                    <div class="form-row">
-                        <div class="col text-right">
-                            <label for="numServices" class="lead">Number of VPN Services</label>
+                    <div class="form-row justify-content-center">
+                        <div class="col-3">
+                            <label for="numServices" class="lead">VPN Services</label>
                         </div>
 
-                        <div class="col">
-                            <input class="form-control w-50" type="number" id="numServices" name="numServices">
+                        <div class="col-4">
+                            <input class="form-control" type="number" id="numServices" name="numServices" placeholder="Enter a number">
                             <small id="numServicesError" class="form-text text-muted errorMessage">
                                 Invalid number
                             </small>
                         </div>
                     </div>
 
-                    <div class="form-row">
-                        <div class="col text-center">
-                            <button type="button" class="btn btn-outline-primary btn-lg mt-3" id="showForm"><i class="fas fa-angle-double-down"></i></button>
+                    <div class="form-row justify-content-center">
+                        <div class="col-7">
+                            <button type="button" class="btn btn-outline-primary btn-block mt-3" id="showForm"><i class="fas fa-angle-double-down"></i></button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="container wrapper my-3" id="wrapper">
+        <div class="container wrapper w-50 my-3" id="wrapper">
             <div class="card py-3">
                 <div class="form-wrapper">
                     <div class="form-row">
@@ -112,12 +112,13 @@
                     </div>
 
                     <div class="form-row">
-                        <div class="col">
+                        <div class="col-5">
                             <label for="siteCLLI">*Site CLLI</label>
                             <input type="text" class="form-control" id="siteCLLI" name="siteCLLI" required>
                         </div>
-
-                        <div class="col">
+                    </div>
+                    <div class="form-row">
+                        <div class="col-5">
                             <label for="peRouter1">*PE Router</label>
                             <select class="form-control" id="peRouter1" name="peRouter1" required>
                                 <option value="" selected disabled>Select</option>
@@ -126,51 +127,36 @@
                                 {% endfor %}
                             </select>
                         </div>
+                        <div class="col-5" id="backupRouterCol">
+                            <label for="peRouter2">*PE Router (backup)</label>
+                            <select class="form-control" id="peRouter2" name="peRouter2">
+                                <option selected disabled>Select</option>
+                                {% for item in dropdown_lists['pe_routers'] %}
+                                    <option>{{ item }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
 
-                        <div class="col">
+                    <div class="form-row">
+                        <div class="col-5">
                             <label for="primaryBandwidth">*Site Bandwidth</label>
-                            <input type="number" class="form-control" id="siteBandwidth" name="siteBandwidth" required>
+                            <input type="number" class="form-control w-50" id="siteBandwidth" name="siteBandwidth" required>
+                        </div>
+
+                        <div class="col-3" id="siteBandwidthBackup">
+                            <label for="backupBandwidth">*Site Bandwidth (backup)</label>
+                            <input type="number" class="form-control" id="siteBandwidthBackup" name="siteBandwidthBackup">
                         </div>
                     </div>
 
-                    <div id="backupBandwidthRow">
-                        <div class="form-row">
-                            <div class="col">
-                            </div>
-
-                            <div class="col">
-                                <label for="peRouter2">*PE Router (backup)</label>
-                                <select class="form-control" id="peRouter2" name="peRouter2">
-                                    <option selected disabled>Select</option>
-                                    {% for item in dropdown_lists['pe_routers'] %}
-                                        <option>{{ item }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-
-                            <div class="col">
-                                <label for="backupBandwidth">*Site Bandwidth (backup)</label>
-                                <input type="number" class="form-control" id="backupBandwidth" name="backupBandwidth">
-                            </div>
-                        </div>
-                    </div>
 
                     <div class="card-header text-center mt-3">
                         Customer Equipment
                     </div>
 
                     <div class="form-row">
-                        <div class="col">
-                            <label for="cpeRouter">*Customer Router CLEI</label>
-                            <input type="text" class="form-control" id="cpeRouter" name="cpeRouter" required>
-                        </div>
-
-                        <div class="col">
-                            <label for="cpeLoopback">Router Loopback IP</label>
-                            <input type="text" class="form-control" id="cpeLoopback" name="cpeLoopback">
-                        </div>
-
-                        <div class="col">
+                        <div class="col-5">
                             <label for="cpeTemplate">*Router Template</label>
                             <select class="form-control" id="cpeTemplate" name="cpeTemplate" required>
                                 <option value="" selected disabled>Select</option>
@@ -180,29 +166,21 @@
                             </select>
                         </div>
                     </div>
-                    <div id="terServerRow">
+
+                    <div class="form-row">
+                        <div class="col-5">
+                            <label for="cpeRouter">*Customer Router CLEI</label>
+                            <input type="text" class="form-control" id="cpeRouter" name="cpeRouter" required>
+                        </div>
+
+                        <div class="col-5">
+                            <label for="cpeLoopback">Router Loopback IP</label>
+                            <input type="text" class="form-control" id="cpeLoopback" name="cpeLoopback">
+                        </div>
+                    </div>
+                    <div id="backupTerServer">
                         <div class="form-row">
-                            <div class="col">
-                                <label for="terServer">*Terminal Server CLEI</label>
-                                <input type="text" class="form-control" name="terServer">
-                            </div>
-
-                            <div class="col">
-                                <label for="terServerIP">Server Network Address</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" name="terServerIP" onchange="toggleValidateIP.call(this)">
-                                    <div class="input-group-append">
-                                        <span class="input-group-text">/</span>
-                                        <select class="form-control" name="terServerCIDR">
-                                            {% for item in dropdown_lists['cidr_prefixes'] %}
-                                                <option>{{ item }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col">
+                            <div class="col-5">
                                 <label for="terServerTemplate">*Server Template</label>
                                 <select class="form-control" name="terServerTemplate">
                                     <option selected disabled>Select</option>
@@ -212,6 +190,48 @@
                                 </select>
                             </div>
                         </div>
+
+                        <div class="form-row">
+                            <div class="col-5">
+                                <label for="terServer">*Terminal Server CLEI</label>
+                                <input type="text" class="form-control" name="terServer">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="col-5">
+                                <label for="terServerIP1">TS Port 1 Address</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="terServerIP1" onchange="toggleValidateIP.call(this)">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">/</span>
+                                        <select class="form-control" name="terServerCIDR1">
+                                            {% for item in dropdown_lists['cidr_prefixes'] %}
+                                                {% if item != 31 %}
+                                                    <option>{{ item }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-5">
+                                <label for="terServerIP2">TS Port 2 Address</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="terServerIP2" onchange="toggleValidateIP.call(this)">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">/</span>
+                                        <select class="form-control" name="terServerCIDR2">
+                                            {% for item in dropdown_lists['cidr_prefixes'] %}
+                                                {% if item != 31 %}
+                                                    <option>{{ item }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="card-header text-center mt-3">
@@ -219,10 +239,10 @@
                     </div>
 
                     <div class="mt-2" id="primaryManagementHeader">
-                        <h3 class="text-center">Primary</h3>
+                        <h3 class="my-3">Primary</h3>
                     </div>
 
-                    <div id="primaryManagementRow">
+                    <div id="primaryManagement">
 
                         <div class="form-row">
                             <div class="col-3">
@@ -230,7 +250,7 @@
                                 <input type="number" class="form-control" id="nmsVlan" name="nmsVlan">
                             </div>
 
-                            <div class="col">
+                            <div class="col-5">
                                 <label for="nmsIP">Network Address</label>
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="nmsIP" name="nmsIP">
@@ -252,7 +272,7 @@
                                 <input type="number" class="form-control" id="facilityVlan" name="facilityVlan">
                             </div>
 
-                            <div class="col">
+                            <div class="col-5">
                                 <label for="facilityIP">Network Address</label>
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="facilityIP" name="facilityIP">
@@ -268,9 +288,22 @@
                             </div>
                         </div>
 
+                        <h5 class="mb-3 mt-5">Vendor NNI (Optional)</h5>
                         <div class="form-row">
-                            <div class="col-4">
-                                <label for="vendorPort">Vendor NNI Interface (Optional)</label>
+                            <div class="col-3">
+                                <label for="vendorVlan">Vendor VLAN</label>
+                                <input type="text" class="form-control" id="vendorVlan" name="vendorVlan">
+                            </div>
+
+                            <div class="col-5">
+                                <label for="vendorChannel">Vendor Channel</label>
+                                <input type="text" class="form-control" id="vendorChannel" name="vendorChannel">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="col-3">
+                                <label for="vendorPort">NNI Interface</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <select class="custom-select" id="vendorInterface" name="vendorInterface">
@@ -279,34 +312,24 @@
                                             <option>TEN</option>
                                         </select>
                                     </div>
-                                    <input type="text" class="form-control" id="vendorPort" name="vendorPort" placeholder="e.g. 0/0/0/0">
+                                    <input type="text" class="form-control" id="vendorPort" name="vendorPort" placeholder="0/0/0/0">
                                 </div>
-                            </div>
-
-                            <div class="col-5">
-                                <label for="vendorChannel">Vendor Channel (Optional)</label>
-                                <input type="text" class="form-control" id="vendorChannel" name="vendorChannel">
-                            </div>
-
-                            <div class="col">
-                                <label for="vendorVlan">Vendor VLAN (Optional)</label>
-                                <input type="text" class="form-control" id="vendorVlan" name="vendorVlan">
                             </div>
                         </div>
                     </div>
 
-                    <div class="mt-2" id="backupManagementHeader">
-                        <h3 class="text-center">Backup</h3>
-                    </div>
-
-                    <div id="backupManagementRow">
+                    <div id="backupManagement">
+                        <hr class="mt-5">
+                        <div class="mt-2" id="backupManagementHeader">
+                            <h3 class="my-3">Backup</h3>
+                        </div>
                         <div class="form-row">
                             <div class="col-3">
                                 <label for="nmsVlanBackup">NMS VLAN</label>
                                 <input type="number" class="form-control" id="nmsVlanBackup" name="nmsVlanBackup">
                             </div>
 
-                            <div class="col">
+                            <div class="col-5">
                                 <label for="nmsIPBackup">Network Address</label>
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="nmsIPBackup" name="nmsIPBackup">
@@ -328,7 +351,7 @@
                                 <input type="number" class="form-control" id="facilityVlanBackup" name="facilityVlanBackup">
                             </div>
 
-                            <div class="col">
+                            <div class="col-5">
                                 <label for="facilityIPBackup">Network Address</label>
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="facilityIPBackup" name="facilityIPBackup">
@@ -344,10 +367,22 @@
                             </div>
                         </div>
 
+                        <h5 class="mb-3 mt-5">Vendor NNI (Optional)</h5>
+                        <div class="form-row">
+                            <div class="col-3">
+                                <label for="vendorVlanBackup">Vendor VLAN </label>
+                                <input type="text" class="form-control" id="vendorVlanBackup" name="vendorVlanBackup">
+                            </div>
+
+                            <div class="col-5">
+                                <label for="vendorChannelBackup">Vendor Channel </label>
+                                <input type="text" class="form-control" id="vendorChannelBackup" name="vendorChannelBackup">
+                            </div>
+                        </div>
 
                         <div class="form-row">
-                            <div class="col-4">
-                                <label for="vendorInterfaceBackup">Vendor NNI Interface (Optional)</label>
+                            <div class="col-3">
+                                <label for="vendorInterfaceBackup">NNI Interface</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <select class="custom-select" id="vendorInterfaceBackup" name="vendorInterfaceBackup">
@@ -356,18 +391,8 @@
                                             <option>TEN</option>
                                         </select>
                                     </div>
-                                    <input type="text" class="form-control" id="vendorPortBackup" name="vendorPortBackup" placeholder="e.g. 0/0/0/0">
+                                    <input type="text" class="form-control" id="vendorPortBackup" name="vendorPortBackup" placeholder="0/0/0/0">
                                 </div>
-                            </div>
-
-                            <div class="col-5">
-                                <label for="vendorChannelBackup">Vendor Channel (Optional)</label>
-                                <input type="text" class="form-control" id="vendorChannelBackup" name="vendorChannelBackup">
-                            </div>
-
-                            <div class="col">
-                                <label for="vendorVlanBackup">Vendor VLAN (Optional)</label>
-                                <input type="text" class="form-control" id="vendorVlanBackup" name="vendorVlanBackup">
                             </div>
                         </div>
                     </div>
@@ -389,9 +414,10 @@
 
                             <div class="col-2">
                                 <label for="servicePort">CPE Port</label>
-                                <select class="form-control" id="servicePort" name="servicePort">
+                                <select class="form-control portSelect" id="servicePort" name="servicePort">
+                                    <option value=""></option>
                                     {% for item in dropdown_lists['srx345_node0_ports'] %}
-                                        <option>{{ item }}</option>
+                                    <option value='{{ item }}'>{{ item }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -447,7 +473,7 @@
                                 <input type="number" class="form-control" id="serviceVlanBackup" name="serviceVlanBackup">
                             </div>
 
-                            <div class="col">
+                            <div class="col-5">
                                 <label for="servicePeIPBackup">PE Network Address</label>
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="servicePeIP" name="servicePeIPBackup" onchange="toggleValidateIP.call(this)">

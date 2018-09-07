@@ -1,6 +1,6 @@
 {{ key['cpe_header'] }}
 
-set groups node0 system host-name {{ key['cpe_router'] }}
+set groups node0 system host-name {{ key['cpe_router'] }}{{ key['p_node'] }}
 set system host-name {{ key['cpe_router'] }}
 set system time-zone America/Toronto
 set system authentication-order radius
@@ -225,7 +225,7 @@ set firewall family inet filter PROTECT-RE term block-ntp from port ntp
 set firewall family inet filter PROTECT-RE term block-ntp then discard
 set firewall family inet filter PROTECT-RE term default then accept
 
-set interfaces reth0 unit {{ key['nms_vlan'] }} description NMS-{{ key['cpe_router'] }}
+set interfaces reth0 unit {{ key['nms_vlan'] }} description {{ key['primary_prefix'] }}{{ key['cpe_router'] }}
 set interfaces reth0 unit {{ key['nms_vlan'] }} vlan-id {{ key['nms_vlan'] }}
 set interfaces reth0 unit {{ key['nms_vlan'] }} family inet address {{ key['nms_cpe_ip'] }}/{{ key['nms_cidr'] }}
 
@@ -248,7 +248,7 @@ set firewall policer POLICE-{{ key['bw_minus_one'] }}MB if-exceeding bandwidth-l
 set firewall policer POLICE-{{ key['bw_minus_one'] }}MB if-exceeding burst-size-limit 100k
 set firewall policer POLICE-{{ key['bw_minus_one'] }}MB then discard
 
-set interfaces reth0 unit {{ key['vpn_vlan'] }} description VPN-{{ key['cpe_router'] }}
+set interfaces reth0 unit {{ key['vpn_vlan'] }} description VPN-{{ key['primary_prefix'] }}{{ key['cpe_router'] }}
 set interfaces reth0 unit {{ key['vpn_vlan'] }} vlan-id {{ key['vpn_vlan'] }}
 set interfaces reth0 unit {{ key['vpn_vlan'] }} family inet policer input POLICE-{{ key['bw_minus_one'] }}MB
 set interfaces reth0 unit {{ key['vpn_vlan'] }} family inet address {{ key['vpn_cpe_ip'] }}/{{ key['vpn_cidr'] }}
