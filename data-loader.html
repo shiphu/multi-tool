@@ -1,0 +1,526 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <form id="input_form" name="input_form" method="POST">
+        <div class="container-fluid banner">
+            <div class="row justify-content-center">
+                <div class="jumbotron-fluid py-5">
+                    <h1 class="display-3">Data File Generator</h1>
+                    <hr>
+                    <div class="form-row mb-2">
+                        <div class="col text-center">
+                            <a href="#loaderInstructions" data-toggle="modal"><u>Help</u></a>
+                        </div>
+                    </div>
+
+                    <div id="loaderInstructions" class="modal fade" role="dialog">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Instructions</h4>
+                                    <hr>
+                                </div>
+                                <div class="modal-body">
+                                    <p>
+                                        This tool generates a data file which is used in conjunction with
+                                        <a href="http://ossinv1.itmc.ohsc.com:8080/GraniteDataLoader/" target="_blank">Granite Data Loader.</a>
+                                    </p>
+                                    <p>
+                                        Based on the generated data file, Granite Data Loader has the ability to do the following in Xng/Granite:
+                                    <ul>
+                                        <li>Create ports, channels & IP subnets</li>
+                                        <li>Assign IP addresses to ports</li>
+                                        <li>Create equipment (routers, terminal servers, etc.)</li>
+                                    </ul>
+                                    </p>
+
+                                    <p><b>Note: </b>It is recommended to check the data file after it is generated to ensure all information is correct.</p>
+
+                                    <p><i>If this tool requires updates, refer to the documentation on how to make changes.</i></p>
+                                </div>
+                                <button type="button" class="btn btn-default closeTable" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row justify-content-center">
+                        <div class="col-3">
+                            <label for="siteType" class="lead">Site Type</label>
+                        </div>
+
+                        <div class="col-4">
+                            <select class="form-control" id="configType" name="siteType">
+                                <option selected disabled>Select</option>
+                                <option value="single">Single CPE</option>
+                                <option value="dual">Dual CPE</option>
+                            </select>
+                            <small id="siteTypeError" class="form-text text-muted errorMessage">
+                                Required
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-row justify-content-center">
+                        <div class="col-3">
+                            <label for="modelName" class="lead">Router Model</label>
+                        </div>
+
+                        <div class="col-4">
+                            <select class="form-control" id="modelName" name="modelName">
+                                <option selected disabled>Select</option>
+                                {% for item in dropdown_lists['model_names'] %}
+                                    <option>{{ item }}</option>
+                                {% endfor %}
+                            </select>
+                            <small id="modelNameError" class="form-text text-muted errorMessage">
+                                Required
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-row justify-content-center">
+                        <div class="col-3">
+                            <label for="numServices" class="lead">VPN Services</label>
+                        </div>
+
+                        <div class="col-4">
+                            <input class="form-control" type="number" id="numServices" name="numServices" placeholder="Enter a number">
+                            <small id="numServicesError" class="form-text text-muted errorMessage">
+                                Invalid number
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-row justify-content-center">
+                        <div class="col-7">
+                            <button type="button" class="btn btn-outline-primary btn-block mt-3" id="showForm"><i class="fas fa-angle-double-down"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container wrapper w-50 my-3" id="wrapper">
+            <div class="card py-3">
+                <div class="form-wrapper">
+                    <div class="form-row">
+                        <div class="col">
+                            <i>*Fields marked with * are mandatory</i>
+                        </div>
+                    </div>
+                    <div class="card-header text-center mt-3">
+                        Site Information
+                    </div>
+
+                    <div class="form-row">
+                        <div class="col-5">
+                            <label for="siteCLLI">*Site CLLI</label>
+                            <input type="text" class="form-control" id="siteCLLI" name="siteCLLI" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-5">
+                            <label for="peRouter1">*PE Router</label>
+                            <select class="form-control" id="peRouter1" name="peRouter1" required>
+                                <option value="" selected disabled>Select</option>
+                                {% for item in dropdown_lists['pe_routers'] %}
+                                    <option>{{ item }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-5" id="backupRouterCol">
+                            <label for="peRouter2">*PE Router (backup)</label>
+                            <select class="form-control" id="peRouter2" name="peRouter2">
+                                <option selected disabled>Select</option>
+                                {% for item in dropdown_lists['pe_routers'] %}
+                                    <option>{{ item }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="col-5">
+                            <label for="primaryBandwidth">*Site Bandwidth</label>
+                            <input type="number" class="form-control w-50" id="siteBandwidth" name="siteBandwidth" required>
+                        </div>
+
+                        <div class="col-3" id="backupBandwidthCol">
+                            <div id="siteBandwidthBackup">
+                                <label for="backupBandwidth">*Site Bandwidth (backup)</label>
+                                <input type="number" class="form-control" id="siteBandwidthBackup" name="siteBandwidthBackup">
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="card-header text-center mt-3">
+                        Customer Equipment
+                    </div>
+
+                    <div class="form-row">
+                        <div class="col-5">
+                            <label for="cpeTemplate">*Router Template</label>
+                            <select class="form-control" id="cpeTemplate" name="cpeTemplate" required>
+                                <option value="" selected disabled>Select</option>
+                                {% for item in dropdown_lists['router_templates'] %}
+                                    <option>{{ item }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="col-5">
+                            <label for="cpeRouter">*Customer Router CLEI</label>
+                            <input type="text" class="form-control" id="cpeRouter" name="cpeRouter" required>
+                        </div>
+
+                        <div class="col-5">
+                            <label for="cpeLoopback">Router Loopback IP</label>
+                            <input type="text" class="form-control" id="cpeLoopback" name="cpeLoopback">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="col-3">
+                            <label for="rethInterface">Reth Interface</label>
+                            <select class="form-control" id="rethInterface" name="rethInterface">
+                                <option>RETH0</option>
+                                <option>RETH2</option>
+                                <option>RETH3</option>
+                                <option>RETH4</option>
+                                <option>RETH5</option>
+                                <option>RETH6</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="backupTerServer">
+                        <div class="form-row">
+                            <div class="col-5">
+                                <label for="terServerTemplate">*Server Template</label>
+                                <select class="form-control" name="terServerTemplate">
+                                    <option selected disabled>Select</option>
+                                    {% for item in dropdown_lists['server_templates'] %}
+                                        <option>{{ item }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="col-5">
+                                <label for="terServer">*Terminal Server CLEI</label>
+                                <input type="text" class="form-control" name="terServer">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="col-5">
+                                <label for="terServerIP1">TS Port 1 Address</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="terServerIP1" onchange="toggleValidateIP.call(this)">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">/</span>
+                                        <select class="form-control" name="terServerCIDR1">
+                                            {% for item in dropdown_lists['cidr_prefixes'] %}
+                                                {% if item != 31 %}
+                                                    <option>{{ item }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-5">
+                                <label for="terServerIP2">TS Port 2 Address</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="terServerIP2" onchange="toggleValidateIP.call(this)">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">/</span>
+                                        <select class="form-control" name="terServerCIDR2">
+                                            {% for item in dropdown_lists['cidr_prefixes'] %}
+                                                {% if item != 31 %}
+                                                    <option>{{ item }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-header text-center mt-3">
+                        Management Ports
+                    </div>
+
+                    <div class="mt-2" id="primaryManagementHeader">
+                        <h3 class="my-3">Primary</h3>
+                    </div>
+
+                    <div id="primaryManagement">
+
+                        <div class="form-row">
+                            <div class="col-3">
+                                <label for="nmsVlan">NMS VLAN</label>
+                                <input type="number" class="form-control" id="nmsVlan" name="nmsVlan">
+                            </div>
+
+                            <div class="col-5">
+                                <label for="nmsIP">Network Address</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="nmsIP" name="nmsIP">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">/</span>
+                                        <select class="form-control" id="nmsCIDR" name="nmsCIDR">
+                                            {% for item in dropdown_lists['cidr_prefixes'] %}
+                                                <option>{{ item }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="col-3">
+                                <label for="facilityVlan">HOT Facility VLAN</label>
+                                <input type="number" class="form-control" id="facilityVlan" name="facilityVlan">
+                            </div>
+
+                            <div class="col-5">
+                                <label for="facilityIP">Network Address</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="facilityIP" name="facilityIP">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">/</span>
+                                        <select class="form-control" id="facilityCIDR" name="facilityCIDR">
+                                            {% for item in dropdown_lists['cidr_prefixes'] %}
+                                                <option>{{ item }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h5 class="mb-3 mt-5">Vendor NNI (Optional)</h5>
+                        <div class="form-row">
+                            <div class="col-3">
+                                <label for="vendorVlan">Vendor VLAN</label>
+                                <input type="text" class="form-control" id="vendorVlan" name="vendorVlan">
+                            </div>
+
+                            <div class="col-5">
+                                <label for="vendorChannel">Vendor Channel</label>
+                                <input type="text" class="form-control" id="vendorChannel" name="vendorChannel">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="col-3">
+                                <label for="vendorPort">NNI Interface</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <select class="custom-select" id="vendorInterface" name="vendorInterface">
+                                            <option selected disabled value="">--Select--</option>
+                                            <option>GIG</option>
+                                            <option>TEN</option>
+                                        </select>
+                                    </div>
+                                    <input type="text" class="form-control" id="vendorPort" name="vendorPort" placeholder="0/0/0/0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="backupManagement">
+                        <hr class="mt-5">
+                        <div class="mt-2" id="backupManagementHeader">
+                            <h3 class="my-3">Backup</h3>
+                        </div>
+                        <div class="form-row">
+                            <div class="col-3">
+                                <label for="nmsVlanBackup">NMS VLAN</label>
+                                <input type="number" class="form-control" id="nmsVlanBackup" name="nmsVlanBackup">
+                            </div>
+
+                            <div class="col-5">
+                                <label for="nmsIPBackup">Network Address</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="nmsIPBackup" name="nmsIPBackup">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">/</span>
+                                        <select class="form-control" id="nmsCIDRBackup" name="nmsCIDRBackup">
+                                            {% for item in dropdown_lists['cidr_prefixes'] %}
+                                                <option>{{ item }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="col-3">
+                                <label for="facilityVlanBackup">HOT Facility VLAN</label>
+                                <input type="number" class="form-control" id="facilityVlanBackup" name="facilityVlanBackup">
+                            </div>
+
+                            <div class="col-5">
+                                <label for="facilityIPBackup">Network Address</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="facilityIPBackup" name="facilityIPBackup">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">/</span>
+                                        <select class="form-control" id="facilityCIDRBackup" name="facilityCIDRBackup">
+                                            {% for item in dropdown_lists['cidr_prefixes'] %}
+                                                <option>{{ item }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h5 class="mb-3 mt-5">Vendor NNI (Optional)</h5>
+                        <div class="form-row">
+                            <div class="col-3">
+                                <label for="vendorVlanBackup">Vendor VLAN </label>
+                                <input type="text" class="form-control" id="vendorVlanBackup" name="vendorVlanBackup">
+                            </div>
+
+                            <div class="col-5">
+                                <label for="vendorChannelBackup">Vendor Channel </label>
+                                <input type="text" class="form-control" id="vendorChannelBackup" name="vendorChannelBackup">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="col-3">
+                                <label for="vendorInterfaceBackup">NNI Interface</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <select class="custom-select" id="vendorInterfaceBackup" name="vendorInterfaceBackup">
+                                            <option selected disabled value="">--Select--</option>
+                                            <option>GIG</option>
+                                            <option>TEN</option>
+                                        </select>
+                                    </div>
+                                    <input type="text" class="form-control" id="vendorPortBackup" name="vendorPortBackup" placeholder="0/0/0/0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-header text-center mt-3">
+                        VPN Services
+                    </div>
+
+                    <div class="mt-2" id="primaryVpnHeader">
+                        <h3 class="text-center">Primary</h3>
+                    </div>
+
+                    <div id="vpnBodyPrimary">
+                        <div class="form-row">
+                            <div class="col-2">
+                                <label for="serviceVlan">VLAN</label>
+                                <input type="number" class="form-control" id="serviceVlan" name="serviceVlan">
+                            </div>
+
+                            <div class="col-2">
+                                <label for="servicePort">CPE Port</label>
+                                <select class="form-control portSelect" id="servicePort" name="servicePort">
+                                    <option value=""></option>
+                                    {% for item in dropdown_lists['srx345_node0_ports'] %}
+                                    <option value='{{ item }}'>{{ item }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col">
+                                <label for="serviceCpeIP">CPE Network Address</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="serviceCpeIP" name="serviceCpeIP" onchange="toggleValidateIP.call(this)">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">/</span>
+                                        <select class="form-control" id="serviceCpeCIDR" name="serviceCpeCIDR">
+                                            {% for item in dropdown_lists['cidr_prefixes'] %}
+                                                {% if item != 31 %}
+                                                    <option>{{ item }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <label for="servicePeIP">PE Network Address</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="servicePeIP" name="servicePeIP" onchange="toggleValidateIP.call(this)">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">/</span>
+                                        <select class="form-control" id="servicePeCIDR" name="servicePeCIDR">
+                                            {% for item in dropdown_lists['cidr_prefixes'] %}
+                                                {% if item != 31 %}
+                                                    <option>{{ item }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="primaryServiceWrapper">
+                        <!--All primary clones go here-->
+                    </div>
+
+                    <div class="mt-2" id="backupVpnHeader">
+                        <h3 class="text-center">Backup</h3>
+                    </div>
+
+                    <div id="vpnBodyBackup">
+                        <div class="form-row">
+                            <div class="col-2">
+                                <label for="serviceVlanBackup">VLAN</label>
+                                <input type="number" class="form-control" id="serviceVlanBackup" name="serviceVlanBackup">
+                            </div>
+
+                            <div class="col-5">
+                                <label for="servicePeIPBackup">PE Network Address</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="servicePeIP" name="servicePeIPBackup" onchange="toggleValidateIP.call(this)">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">/</span>
+                                        <select class="form-control" id="servicePeCIDRBackup" name="servicePeCIDRBackup">
+                                            {% for item in dropdown_lists['cidr_prefixes'] %}
+                                                {% if item != 31 %}
+                                                    <option>{{ item }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="backupServiceWrapper">
+                        <!--All backup clones go here-->
+                    </div>
+
+                    <div class="form-row text-center mt-4">
+                        <div class="col">
+                            <input type="submit" value="Generate" class="btn btn-primary btn-lg" id="submitButton">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script src="{{ url_for('static', filename='js/data-loader-script.js') }}"></script>
+{% endblock %}
+
