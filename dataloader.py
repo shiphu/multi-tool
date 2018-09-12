@@ -42,34 +42,45 @@ class Shelf:
         self.site_id = site_id
         self.shelf_template = shelf_template
         self.node = node
+        self.model = model
         
-    def make_port(self, path_type, vlan, interface, network_addr=None, port_id=None):
-        self.port = Port(self, path_type, vlan, interface, network_addr, port_id)
+    def make_port(self, path_type, interface, vlan=None, network_addr=None, port_id=None, bandwidth=None):
+        self.port = Port(self, path_type, interface, vlan, network_addr, port_id, bandwidth)
         return self.port
-    
+
+
 class Port():
-    def __init__(self, device, path_type, vlan, interface, network_addr=None, port_id=None):
+    def __init__(self, device, path_type, interface, vlan=None, network_addr=None, port_id=None, bandwidth=None):
         self.shelf_id = device.shelf_id
         self.site_id = device.site_id
         self.path_type = path_type
         self.device_type = device.device_type
-        if device.device_type == 'pe' or device.device_type == 'vpn':
-            table = self.get_table(path_type, device.device_type)
+        self.node = device.node
+        self.model = device.model
+        self.interface = interface
+        self.bandwidth = '{}M'.format(bandwidth) if bandwidth else 'UNDEFINED'
+        self.connector = 'Logical'
+        self.ip_addr = self.set_ip(network_addr)
+        self.network = 'SSHA'
+        self.customer = 'C001645'
+
+        if self.device_type == 'pe' or self.device_type == 'vpn':
+            table = self.get_table(path_type, self.device_type)
             q = session.query(table).filter(table.shelf_clei == self.shelf_id).first()
             self.port_id = self.make_port(q, interface, vlan) if not port_id else port_id
-        elif device.device_type == 'cpe':
+        elif self.device_type == 'cpe':
             if interface == 'loopback':
-                q = session.query(Equipment).filter(Equipment.shelf_node == device.node).first()
+                q = session.query(Equipment).filter(Equipment.shelf_node == self.node).first()
                 self.port_id = q.loopback_interface
             elif interface == 'logical':
-                q = session.query(Equipment).filter(Equipment.shelf_node == device.node).first()
+                q = session.query(Equipment).filter(Equipment.shelf_node == self.node).first()
                 self.port_id = '{}.{}'.format(port_id, vlan) if vlan else None
             elif interface == 'physical':
                 q = session.query(Equipment).filter(Equipment.shelf_node == self.node).first()
-                port_table = self.get_table(path_type, device.device_type, self.model)
+                port_table = self.get_table(path_type, self.device_type, self.model)
                 q = session.query(port_table).filter(port_table.physical_interface == port_id).first()
                 self.port_id = port_id
-        elif device.device_type == 'ts':
+        elif self.device_type == 'ts':
             q = session.query(Equipment).filter(Equipment.shelf_clei == self.model).first()
             self.port_id = port_id
             
@@ -79,10 +90,8 @@ class Port():
             self.slot_3 = q.slot_3
         except AttributeError:
             pass
-        
-        self.bandwidth = 'UNDEFINED'
-        self.connector = 'Logical'
-        self.ip_addr = self.set_ip(network_addr)
+
+        self.hostname = '{} - {}'.format(self.shelf_id, self.port_id)
         
     def make_port(self, query, interface, vlan):
         if interface == 'logical' and vlan:
@@ -108,25 +117,6 @@ class Port():
         return tables[table]
 
     def set_ip(self, network_addr):
-        if self.path_type == 'facility' or self.path_type == 'nms':
-            # Assign IP to logical port of primary VPN concentrator
-            if self.device_type == 'vpn' and self.interface == 'logical' and '45W' in self.shelf_id:
-                ip_addr = self.validate_ip(network_addr)
-            elif self.device_type == 'pe':
-                ip_addr = self.validate_ip(network_addr)
-            elif self.device_type == 'cpe':
-                ip_addr = self.validate_ip(network_addr, 1)
-        elif self.path_type == 'service':
-            if self.device_type == 'pe':
-                ip_addr = self.validate_ip(network_addr, 1)
-            elif self.device_type == 'vpn' and self.interface == 'physical' and '45W' in self.shelf_id:
-                ip_addr = self.validate_ip(network_addr, 2)
-            elif self.device_type == 'cpe':
-                ip_addr = self.validate_ip(network_addr, 1) 
-        elif self.interface == 'loopback':
-            ip_addr = self.validate_ip(network_addr)
-        else: 
-            return None
         ip_addr = ''
         if self.device_type == 'cpe':
             if self.interface == 'loopback':
@@ -330,7 +320,6 @@ def create_r3_data_file(form, site_type):
     d = strip_whitespace(form)
     site_suffix = ['', 'Backup'] if site_type == 'dual' else ['']
 
-        
     cpe_router = Shelf(
         shelf_id=d['cpeRouter'],
         device_type='cpe', 
@@ -338,36 +327,120 @@ def create_r3_data_file(form, site_type):
         shelf_template=d['cpeTemplate'],
         model=d['modelName']
     )
+    rows['shelf'].append(cpe_router)
     
     for site in site_suffix:
-        if site == '':
-            pe = d['peRouter1']
-        elif site == 'Backup':
+        pe = d['peRouter1']
+        reth = d['rethInterface']
+        bw_minus_one = int(d['siteBandwidth']) - 1
+        if site == 'Backup':
             pe = d['peRouter2']
+            reth = 'RETH20'
+            bw_minus_one = int(d['siteBandwidthBackup']) - 1
+
         q = session.query(PeSites).filter(PeSites.shelf_clei == pe).first()
+
         pe_router = Shelf(shelf_id=pe, device_type='pe', site_id=q.pop_clli)
         primary_vpn = Shelf(shelf_id=q.vpn_primary, device_type='vpn', site_id=q.pop_clli)
         backup_vpn = Shelf(shelf_id=q.vpn_backup, device_type='vpn', site_id=q.pop_clli)
-        
+        vpn_concentrators = [primary_vpn, backup_vpn]
+        interfaces = ['physical', 'logical']
+
         # NMS CPE & PE ports
         rows['port'].extend([
-            cpe_router.make_port(
-                path_type='nms', 
-                vlan=d['nmsVlan{}'.format(site)],
-                interface='logical', 
-                network_addr=d['nmsIP{}'.format(site)] 
-            ),
             pe_router.make_port(
                 path_type='nms',
-                vlan=d['nmsVlan{}'.format(site)],
                 interface='logical',
-                network_addr=d['nmsIP{}'.format(site)] 
-            )            
+                vlan=d['nmsVlan{}'.format(site)],
+                network_addr=d['nmsIP{}'.format(site)],
+                bandwidth='1'
+            ),
+            cpe_router.make_port(
+                path_type='nms',
+                interface='logical',
+                vlan=d['nmsVlan{}'.format(site)],
+                network_addr=d['nmsIP{}'.format(site)],
+                port_id=reth,
+                bandwidth='1',
+            ),
+            # HOT Facility CPE port
+            cpe_router.make_port(
+                path_type='facility',
+                interface='logical',
+                vlan=d['facilityVlan{}'.format(site)],
+                network_addr=d['facilityIP{}'.format(site)],
+                port_id=reth,
+                bandwidth=bw_minus_one
+            )
         ])
 
+        # HOT Facility VPN ports
+        for vpn in vpn_concentrators:
+            for interface in interfaces:
+                rows['port'].append(vpn.make_port(
+                    path_type='facility',
+                    interface=interface,
+                    vlan=d['facilityVlan{}'.format(site)],
+                    network_addr=d['facilityIP{}'.format(site)],
+                    bandwidth=bw_minus_one
+                ))
+
+        rows['subnet'].extend([
+            Subnet(d['nmsIP{}'.format(site)], cidr='31'),
+            Subnet(d['facilityIP'.format(site)], cidr='31')
+        ])
+
+        counter = 1  # Counter for suffix of HTML element names
+        for i in range(int(d['numServices'])):
+            suffix = '' if counter == 1 else counter
+            rows['port'].append(pe_router.make_port(
+                path_type='service',
+                interface='logical',
+                vlan=d['serviceVlan{}{}'.format(site, suffix)],
+                network_addr=d['servicePeIP{}{}'.format(site, suffix)]
+            ))
+            for vpn in vpn_concentrators:
+                for interface in interfaces:
+                    rows['port'].append(vpn.make_port(
+                        path_type='service',
+                        interface=interface,
+                        vlan=d['serviceVlan{}{}'.format(site, suffix)],
+                        network_addr=d['servicePeIP{}{}'.format(site, suffix)]
+                    ))
+
+            rows['subnet'].append(Subnet(network_addr=d['servicePeIP{}{}'.format(site, suffix)], cidr='30'))
+
+            counter += 1
+
+    # Repeat service loop for CPE ports (only need to be created for primary)
+    counter = 1  # Suffix of HTML element names
+    for i in range(int(d['numServices'])):
+        suffix = '' if counter == 1 else counter
+        rows['ip'].append(cpe_router.make_port(
+            path_type='service',
+            interface='physical',
+            network_addr=d['serviceCpeIP{}'.format(suffix)],
+            port_id=d['servicePort{}'.format(suffix)]
+        ))
+
+        rows['subnet'].append(Subnet(
+            network_addr=d['serviceCpeIP{}'.format(suffix)],
+            cidr=d['serviceCpeCIDR{}'.format(suffix)]
+        ))
+
+        counter += 1
     for row in rows['port']:
         if row.port_id and row.shelf_id:
             print_rows['port'].append(row)
+            if row.ip_addr:
+                print_rows['ip'].append(row)
+    for row in rows['ip']:
+        if row.ip_addr and row.port_id and row.shelf_id:
+            print_rows['ip'].append(row)
+    for row in rows['subnet']:
+        if row.sub_start:
+            print_rows['subnet'].append(row)
+
             
     wb = load_workbook(TEMPLATE_FILE)  
     wb.save(R3_FILE)
